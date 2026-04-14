@@ -1,27 +1,20 @@
-<?php
-
+<?php // 2026_04_01_083308_create_questions_table.php
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-    /**
-     * Run the migrations.
-     */
+return new class extends Migration {
     public function up(): void
     {
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
-            $table->text('question_text');
-            $table->enum('category', ['depression','anxiety','stress']);
+            $table->unsignedTinyInteger('nomor')->unique();
+            $table->text('teks_id');
+            $table->text('teks_en');
+            $table->enum('subskala', ['Depression', 'Anxiety', 'Stress']);
             $table->timestamps();
         });
     }
-
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('questions');
