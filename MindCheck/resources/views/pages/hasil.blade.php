@@ -1,23 +1,48 @@
 @extends('layouts.app')
-@section('title','Hasil Skrining')
+@section('title', 'Hasil Screening DASS-21')
 
 @push('head')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 @endpush
 
 @section('content')
-<div class="w-full max-w-screen-2xl mx-auto px-8 lg:px-16 py-12">
+<div class="w-full max-w-screen-2xl mx-auto px-4 sm:px-8 lg:px-16 py-10">
 
-    {{-- Header --}}
-    <div class="flex flex-wrap items-start justify-between gap-4 mb-10">
-        <div>
-            <p class="text-sm lg:text-base font-bold text-slate-400 uppercase tracking-widest mb-2">Hasil Skrining DASS-21</p>
-            <h1 class="text-3xl lg:text-4xl font-bold text-slate-900">Laporan Kesehatan Mental Anda</h1>
-        </div>
-        <span class="text-slate-400 mt-2 text-base lg:text-lg">{{ $screening->selesai_at?->format('d M Y, H:i') }} WIB</span>
+    {{-- HEADER --}}
+    <div class="border-b border-slate-200 pb-5 mb-10">
+        <p class="text-sm font-semibold text-slate-400 uppercase tracking-wide">Hasil Screening DASS-21</p>
+        <h1 class="text-3xl lg:text-4xl font-bold text-slate-800 mt-1">Laporan Riwayat Screening</h1>
+        <p class="text-slate-500 text-sm mt-2">{{ $screening->selesai_at?->format('d M Y, H:i') }} WIB</p>
     </div>
 
-    {{-- 3 kartu skor --}}
+    {{-- GRAFIK VISUAL (Bar + Line) --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14">
+        {{-- Bar Chart --}}
+        <div class="bg-white border border-slate-100 rounded-2xl shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-slate-700 flex items-center gap-2 border-l-4 border-blue-500 pl-3 mb-5">
+                Skor Saat Ini
+            </h2>
+            <canvas id="barChartHasil" style="height: 260px; width: 100%;"></canvas>
+            <div class="flex flex-wrap justify-center gap-3 mt-5 text-sm">
+                @foreach($barData['categories'] as $idx => $kat)
+                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-50 border border-slate-200 text-slate-700">
+                    <strong>{{ $barData['labels'][$idx] }}</strong>: {{ $kat }}
+                </span>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Line Chart --}}
+        <div class="bg-white border border-slate-100 rounded-2xl shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-slate-700 flex items-center gap-2 border-l-4 border-blue-500 pl-3 mb-5">
+                Perkembangan Skor dari Waktu ke Waktu
+            </h2>
+            <canvas id="lineChartRiwayat" style="height: 260px; width: 100%;"></canvas>
+            <p class="text-xs text-slate-400 text-center mt-3">*menampilkan maksimal 5 screening terakhir</p>
+        </div>
+    </div>
+
+    {{-- TIGA KARTU SKOR (model lama yang rapi, tidak mepet) --}}
     @php
     $subskala = [
         ['Depresi',   $result->skor_depresi,   $result->kat_depresi,   $result->pctD(), $result->badgeD(), 'bg-blue-500',
@@ -54,105 +79,103 @@
         @endforeach
     </div>
 
-    {{-- Radar + Rekomendasi --}}
+    {{-- REKOMENDASI + SARAN (formal dengan emoji minimal) --}}
     @php
-    $bgClass = match($result->rekomendasi) {
-        'R16' => 'bg-red-50 border-red-200',
-        'R17' => 'bg-amber-50 border-amber-200',
-        default => 'bg-emerald-50 border-emerald-200',
-    };
-    $textClass = match($result->rekomendasi) {
-        'R16' => 'text-red-800',
-        'R17' => 'text-amber-800',
-        default => 'text-emerald-800',
-    };
+        $level = match($result->rekomendasi) {
+            'R16' => ['bg' => 'bg-red-50', 'border' => 'border-red-200', 'text' => 'text-red-800', 'title' => 'Rekomendasi Konsultasi Psikolog', 'hotline' => true],
+            'R17' => ['bg' => 'bg-amber-50', 'border' => 'border-amber-200', 'text' => 'text-amber-800', 'title' => 'Disarankan Konsultasi', 'hotline' => false],
+            default => ['bg' => 'bg-emerald-50', 'border' => 'border-emerald-200', 'text' => 'text-emerald-800', 'title' => 'Pantau Mandiri', 'hotline' => false],
+        };
     @endphp
-    <div class="grid lg:grid-cols-5 gap-6 mb-10">
-        <div class="lg:col-span-2 bg-white border border-slate-100 rounded-3xl p-8 shadow-sm flex flex-col">
-            <h3 class="font-bold text-slate-800 text-xl lg:text-2xl mb-6">Profil kondisi</h3>
-            <div class="flex-1 flex items-center justify-center">
-                <div class="w-full max-w-md lg:max-w-lg mx-auto">
-                    <canvas id="radarChart"></canvas>
+
+    <div class="{{ $level['bg'] }} border {{ $level['border'] }} rounded-2xl shadow-sm p-8 mb-10">
+        <h2 class="text-2xl font-bold {{ $level['text'] }} border-b {{ $level['border'] }} pb-4 mb-5">
+            {{ $level['title'] }}
+        </h2>
+        <p class="leading-relaxed text-slate-700 text-lg mb-6">
+            {{ $teks }}
+        </p>
+
+        @php
+            $tips = [];
+            if (in_array($result->kat_depresi, ['Berat','Sangat Berat']))
+                $tips[] = 'Atur jadwal tidur teratur (7–8 jam) dan kurangi gadget sebelum tidur.';
+            if (in_array($result->kat_kecemasan, ['Berat','Sangat Berat']))
+                $tips[] = 'Latih pernapasan dalam (teknik 4-7-8) atau meditasi 5 menit setiap hari.';
+            if (in_array($result->kat_stres, ['Berat','Sangat Berat']))
+                $tips[] = 'Luangkan waktu berjalan santai 15 menit setiap hari di luar ruangan.';
+        @endphp
+
+        @if(count($tips))
+        <div class="bg-white/70 rounded-xl p-5 mb-6 border border-slate-100">
+            <p class="font-semibold text-slate-700 mb-2 flex items-center gap-2">Saran yang dapat Anda coba:</p>
+            <ul class="list-disc list-inside space-y-1 text-slate-600">
+                @foreach($tips as $tip)
+                    <li>{{ $tip }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
+        @if($level['hotline'])
+        <div class="bg-white border border-red-200 rounded-xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-red-700">📞 Layanan Dukungan Darurat Mental</p>
+                    <p class="font-bold text-red-800 text-lg">SEJIWA 119 ext 8 — 24 jam</p>
                 </div>
             </div>
         </div>
+        @endif
 
-        <div class="lg:col-span-3 {{ $bgClass }} border rounded-3xl p-8 shadow-sm flex flex-col">
-            <div class="flex items-center gap-4 mb-5">
-                @if($result->rekomendasi==='R16')
-                    <div class="w-14 h-14 lg:w-16 lg:h-16 bg-red-100 rounded-2xl flex items-center justify-center shrink-0">
-                        <svg class="w-7 h-7 lg:w-8 lg:h-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                    </div>
-                    <h3 class="font-bold text-red-800 text-2xl lg:text-3xl">Perlu Konsultasi Segera</h3>
-                @elseif($result->rekomendasi==='R17')
-                    <div class="w-14 h-14 lg:w-16 lg:h-16 bg-amber-100 rounded-2xl flex items-center justify-center shrink-0">
-                        <svg class="w-7 h-7 lg:w-8 lg:h-8 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    </div>
-                    <h3 class="font-bold text-amber-800 text-2xl lg:text-3xl">Disarankan Konsultasi</h3>
-                @else
-                    <div class="w-14 h-14 lg:w-16 lg:h-16 bg-emerald-100 rounded-2xl flex items-center justify-center shrink-0">
-                        <svg class="w-7 h-7 lg:w-8 lg:h-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    </div>
-                    <h3 class="font-bold text-emerald-800 text-2xl lg:text-3xl">Pantau Secara Mandiri</h3>
-                @endif
-            </div>
+        {{-- Tombol aksi – diperbesar dan jelas --}}
+        <div class="flex flex-wrap gap-4 mt-2">
+            <a href="{{ route('screening') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-7 py-3 rounded-xl shadow-md transition">
+                Skrining Lagi
+            </a>
+            <a href="{{ route('history') }}" class="inline-flex items-center gap-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold px-7 py-3 rounded-xl shadow-sm transition">
+                Lihat Riwayat
+            </a>
+            <a href="{{ route('landing') }}" class="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-7 py-3 rounded-xl shadow-sm transition">
+                Kembali ke Dashboard
+            </a>
+        </div>
 
-            <p class="leading-relaxed text-lg lg:text-xl mb-6 {{ $textClass }}">
-                {{ $teks }}
-            </p>
-
-            @if($result->rekomendasi==='R16')
-            <div class="bg-white/60 border border-red-200 rounded-2xl px-6 py-5 flex items-center gap-4 mb-6">
-                <div class="w-14 h-14 lg:w-16 lg:h-16 bg-red-100 rounded-2xl flex items-center justify-center shrink-0">
-                    <svg class="w-7 h-7 lg:w-8 lg:h-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                </div>
-                <div>
-                    <p class="text-sm lg:text-base font-bold text-red-700">Hotline Darurat Mental</p>
-                    <p class="font-bold text-red-900 text-lg lg:text-xl">SEJIWA 119 ext 8 &nbsp;·&nbsp; 24 jam</p>
-                </div>
-            </div>
-            @endif
-
-            <div class="flex flex-wrap gap-4 mt-auto pt-2">
-                <a href="{{ route('screening') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3.5 lg:px-8 lg:py-4 rounded-2xl transition-colors text-lg lg:text-xl">
-                    Skrining Lagi
-                </a>
-                <a href="{{ route('history') }}" class="inline-flex items-center gap-2 bg-white border-2 border-slate-200 hover:border-slate-300 text-slate-700 font-bold px-6 py-3.5 lg:px-8 lg:py-4 rounded-2xl transition-colors text-lg lg:text-xl">
-                    Lihat Riwayat
-                </a>
-            </div>
+        {{-- Konsultasi screening selanjutnya --}}
+        <div class="mt-8 pt-5 border-t border-slate-200 text-center">
+            <p class="text-slate-500 text-sm">Butuh panduan lebih lanjut sebelum screening berikutnya?</p>
+            <button onclick="alert('Silakan hubungi layanan konsultasi kami melalui WhatsApp 0812-3456-7890 atau email konseling@sehatjiwa.com')" 
+                    class="text-blue-600 hover:text-blue-800 font-medium text-sm underline inline-flex items-center gap-1 mt-1">
+                📞 Hubungi Layanan Konsultasi
+            </button>
         </div>
     </div>
 
     {{-- Perbandingan sesi sebelumnya --}}
     @if($prev && $prev->result)
-    <div class="bg-white border border-slate-100 rounded-3xl p-8 shadow-sm mb-6">
-        <h3 class="font-bold text-slate-800 text-xl lg:text-2xl mb-6">Perbandingan dengan sesi sebelumnya
-            <span class="font-normal text-slate-400 ml-2 text-base lg:text-lg">({{ $prev->selesai_at?->format('d M Y') }})</span>
-        </h3>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm mb-8">
+        <h3 class="font-semibold text-slate-800 text-lg flex items-center gap-2 mb-2">Perbandingan dengan Screening Sebelumnya</h3>
+        <p class="text-slate-500 text-sm mb-5">{{ $prev->selesai_at?->format('d M Y') }}</p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             @foreach([
-                ['Depresi',   $result->skor_depresi,   $prev->result->skor_depresi],
+                ['Depresi', $result->skor_depresi, $prev->result->skor_depresi],
                 ['Kecemasan', $result->skor_kecemasan, $prev->result->skor_kecemasan],
-                ['Stres',     $result->skor_stres,     $prev->result->skor_stres],
-            ] as [$nm,$now,$before])
+                ['Stres', $result->skor_stres, $prev->result->skor_stres],
+            ] as [$nm, $now, $before])
             @php $diff = $now - $before; @endphp
-            <div class="flex items-center justify-between bg-slate-50 rounded-2xl px-6 py-6">
-                <span class="font-semibold text-slate-600 text-lg lg:text-xl">{{ $nm }}</span>
-                <div class="flex items-center gap-3">
-                    <span class="font-bold text-slate-900 text-xl lg:text-2xl">{{ $now }}</span>
+            <div class="bg-slate-50 rounded-xl p-4 flex justify-between items-center">
+                <span class="font-medium text-slate-600">{{ $nm }}</span>
+                <div class="flex items-center gap-2">
+                    <span class="font-bold text-slate-800 text-lg">{{ $now }}</span>
                     @if($diff < 0)
-                        <span class="font-bold text-emerald-600 flex items-center gap-1 text-base lg:text-lg">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
-                            {{ abs($diff) }}
-                        </span>
+                        <span class="text-emerald-600 text-sm font-medium">▼ {{ abs($diff) }}</span>
                     @elseif($diff > 0)
-                        <span class="font-bold text-red-500 flex items-center gap-1 text-base lg:text-lg">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                            +{{ $diff }}
-                        </span>
+                        <span class="text-red-500 text-sm font-medium">▲ +{{ $diff }}</span>
                     @else
-                        <span class="text-slate-300 text-lg lg:text-xl">—</span>
+                        <span class="text-slate-300 text-sm">—</span>
                     @endif
                 </div>
             </div>
@@ -161,12 +184,12 @@
     </div>
     @endif
 
-    {{-- Trace DT --}}
-    <details class="bg-slate-800 text-slate-200 rounded-2xl overflow-hidden">
-        <summary class="px-6 py-4 text-sm lg:text-base font-semibold cursor-pointer select-none text-slate-400 hover:text-slate-200 transition-colors">
-            Lihat jejak Decision Tree
+    {{-- Jejak decision tree --}}
+    <details class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
+        <summary class="px-6 py-3 text-sm font-medium text-slate-500 cursor-pointer hover:text-slate-700 select-none">
+            Lihat detail keputusan klinis
         </summary>
-        <div class="px-6 pb-5 font-mono text-sm lg:text-base space-y-1.5 text-slate-300">
+        <div class="px-6 pb-4 font-mono text-sm text-slate-600 space-y-1 border-t border-slate-100 pt-3">
             <div>Depresi   : {{ $result->skor_depresi }} → {{ $result->kat_depresi }}</div>
             <div>Kecemasan : {{ $result->skor_kecemasan }} → {{ $result->kat_kecemasan }}</div>
             <div>Stres     : {{ $result->skor_stres }} → {{ $result->kat_stres }}</div>
@@ -178,35 +201,52 @@
 
 @push('scripts')
 <script>
-new Chart(document.getElementById('radarChart'),{
-    type:'radar',
-    data:{
-        labels:['Depresi','Kecemasan','Stres'],
-        datasets:[{
-            label:'Skor Anda',
-            data:[{{ $result->skor_depresi }},{{ $result->skor_kecemasan }},{{ $result->skor_stres }}],
-            backgroundColor:'rgba(59,130,246,0.15)',
-            borderColor:'#3b82f6', borderWidth:2.5,
-            pointBackgroundColor:'#3b82f6', pointRadius:6,
-        }]
-    },
-    options:{
-        responsive:true,
-        scales:{
-            r:{
-                min:0,
-                max:42,
-                ticks:{
-                    stepSize:14,
-                    font:{size:16} // diperbesar
-                },
-                pointLabels:{
-                    font:{size:18,weight:'700'}
-                }
-            }
+    // Bar chart
+    const barCtx = document.getElementById('barChartHasil').getContext('2d');
+    new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: @json($barData['labels']),
+            datasets: [{
+                label: 'Skor',
+                data: @json($barData['scores']),
+                backgroundColor: ['#3b82f6', '#8b5cf6', '#f97316'],
+                borderRadius: 8,
+                barPercentage: 0.65,
+            }]
         },
-        plugins:{legend:{display:false}}
-    }
-});
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: { beginAtZero: true, max: 42, title: { display: true, text: 'Skor', font: { size: 12 } }, ticks: { stepSize: 14 } },
+                x: { title: { display: true, text: 'Subskala', font: { size: 12 } } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // Line chart
+    @if(count($lineData['labels']) > 0)
+    const lineCtx = document.getElementById('lineChartRiwayat').getContext('2d');
+    new Chart(lineCtx, {
+        type: 'line',
+        data: {
+            labels: @json($lineData['labels']),
+            datasets: [
+                { label: 'Depresi', data: @json($lineData['depresi']), borderColor: '#3b82f6', tension: 0.2, fill: false, pointRadius: 4, borderWidth: 2 },
+                { label: 'Kecemasan', data: @json($lineData['kecemasan']), borderColor: '#8b5cf6', tension: 0.2, fill: false, pointRadius: 4, borderWidth: 2 },
+                { label: 'Stres', data: @json($lineData['stres']), borderColor: '#f97316', tension: 0.2, fill: false, pointRadius: 4, borderWidth: 2 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: { beginAtZero: true, max: 42, title: { display: true, text: 'Skor' }, ticks: { stepSize: 14 } }
+            }
+        }
+    });
+    @endif
 </script>
 @endpush

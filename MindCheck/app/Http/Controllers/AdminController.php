@@ -157,12 +157,12 @@ class AdminController extends Controller
     }
 
     // ── Daftar pertanyaan DASS-21 (read-only) ────────────────────
-    public function questions()
-    {
-        $this->guardAdmin();
-        $questions = Question::orderBy('nomor')->get();
-        return view('admin.questions', compact('questions'));
-    }
+    // public function questions()
+    // {
+    //     $this->guardAdmin();
+    //     $questions = Question::orderBy('nomor')->get();
+    //     return view('admin.questions', compact('questions'));
+    // }
 
     // ── Detail riwayat satu token anonim ─────────────────────────
     public function tokenDetail(string $token)

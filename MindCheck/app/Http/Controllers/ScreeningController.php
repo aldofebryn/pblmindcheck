@@ -135,7 +135,30 @@ class ScreeningController extends Controller
         $dt   = new DecisionTreeService();
         $teks = DecisionTreeService::tekstRek($result->rekomendasi);
 
-        // Riwayat sebelumnya untuk perbandingan trend
+        // Ambil 5 screening terakhir (termasuk yg sekarang) untuk line chart
+        $riwayat = Screening::where('patient_token', $screening->patient_token)
+            ->whereNotNull('selesai_at')
+            ->with('result')
+            ->orderBy('selesai_at', 'asc') // urut dari lama ke baru
+            ->limit(5)
+            ->get();
+
+        // Data untuk line chart
+        $lineData = [
+            'labels' => $riwayat->map(fn($s) => $s->selesai_at->format('d/m'))->toArray(),
+            'depresi' => $riwayat->map(fn($s) => $s->result?->skor_depresi ?? 0)->toArray(),
+            'kecemasan' => $riwayat->map(fn($s) => $s->result?->skor_kecemasan ?? 0)->toArray(),
+            'stres' => $riwayat->map(fn($s) => $s->result?->skor_stres ?? 0)->toArray(),
+        ];
+
+        // Data untuk bar chart (skor saat ini)
+        $barData = [
+            'labels' => ['Depresi', 'Kecemasan', 'Stres'],
+            'scores' => [$result->skor_depresi, $result->skor_kecemasan, $result->skor_stres],
+            'categories' => [$result->kat_depresi, $result->kat_kecemasan, $result->kat_stres]
+        ];
+
+        // Sesi sebelumnya untuk perbandingan (tetap dipertahankan)
         $prev = Screening::where('patient_token', $screening->patient_token)
             ->where('id', '<', $screening->id)
             ->with('result')
@@ -143,7 +166,7 @@ class ScreeningController extends Controller
             ->orderByDesc('id')
             ->first();
 
-        return view('pages.hasil', compact('screening', 'result', 'teks', 'prev'));
+        return view('pages.hasil', compact('screening', 'result', 'teks', 'prev', 'lineData', 'barData'));
     }
 
     // ── Halaman riwayat pasien ───────────────────────────────────
