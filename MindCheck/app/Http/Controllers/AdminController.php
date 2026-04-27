@@ -77,7 +77,7 @@ class AdminController extends Controller
         //        'count' => Screening::whereDate('selesai_at', $tgl)->whereNotNull('selesai_at')->count(),
         //    ];
         // });
-        
+
         // ================== VISUALISASI USER ==================
         // Harian (7 hari terakhir)
             $userHarian = collect(range(6, 0))->map(function ($i) {
@@ -104,7 +104,7 @@ class AdminController extends Controller
             ];
         });
         // Bulanan (6 bulan terakhir)
-            $userBulanan = collect(range(5, 0))->map(function ($i) {
+            $userBulanan = collect(range(11, 0))->map(function ($i) {
                 $bulan = now()->subMonths($i);
 
             return [
