@@ -9,7 +9,7 @@
 $cards = [
     ['Total Sesi',       $totalSesi,  'bg-blue-50 text-blue-600',
      'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'],
-    ['Token Unik',       $totalToken, 'bg-violet-50 text-violet-600',
+    ['Total User',       $totalUser, 'bg-violet-50 text-violet-600',
      'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'],
     ['Perlu Perhatian',  $r16,        'bg-red-50 text-red-600',
      'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'],
@@ -30,10 +30,25 @@ $cards = [
 
 {{-- Charts row --}}
 <div class="grid lg:grid-cols-3 gap-5 mb-8">
-    <div class="lg:col-span-2 bg-white border border-slate-100 rounded-2xl p-7 shadow-sm">
-        <h3 class="font-bold text-slate-800 text-lg mb-5">Tren skrining 7 hari terakhir</h3>
-        <div class="relative" style="height:240px"><canvas id="trenChart"></canvas></div>
+        <div class="lg:col-span-2 bg-white border border-slate-100 rounded-2xl p-7 shadow-sm">
+        
+        {{-- HEADER + FILTER --}}
+        <div class="flex items-center justify-between mb-5">
+            <h3 class="font-bold text-slate-800 text-lg">Visualisasi User</h3>
+
+            <select id="filterChart" class="border rounded-lg px-3 py-1 text-sm">
+                <option value="harian">Harian</option>
+                <option value="mingguan">Mingguan</option>
+                <option value="bulanan">Bulanan</option>
+            </select>
+        </div>
+
+        {{-- CHART --}}
+        <div class="relative" style="height:260px">
+            <canvas id="trenChart"></canvas>
+        </div>
     </div>
+
     <div class="bg-white border border-slate-100 rounded-2xl p-7 shadow-sm">
         <h3 class="font-bold text-slate-800 text-lg mb-5">Distribusi rekomendasi</h3>
         <div class="relative flex items-center justify-center" style="height:180px"><canvas id="rekChart"></canvas></div>
@@ -117,16 +132,56 @@ $cards = [
 
 @push('scripts')
 <script>
-new Chart(document.getElementById('trenChart'),{
-    type:'bar',
-    data:{
-        labels:@json(collect($tren)->pluck('label')),
-        datasets:[{label:'Jumlah Sesi',data:@json(collect($tren)->pluck('count')),
-            backgroundColor:'rgba(59,130,246,0.15)',borderColor:'#3b82f6',borderWidth:2,borderRadius:10}]
+    const dataHarian = {
+        labels: @json($userHarian->pluck('label')),
+        data: @json($userHarian->pluck('count'))
+    };
+
+    const dataMingguan = {
+        labels: @json($userMingguan->pluck('label')),
+        data: @json($userMingguan->pluck('count'))
+    };
+
+    const dataBulanan = {
+        labels: @json($userBulanan->pluck('label')),
+        data: @json($userBulanan->pluck('count'))
+    };
+
+    // default harian
+    let currentData = dataHarian;
+
+    const chart = new Chart(document.getElementById('trenChart'), {
+    type: 'line',
+    data: {
+        labels: currentData.labels,
+        datasets: [{
+            label: 'Jumlah User',
+            data: currentData.data,
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59,130,246,0.1)',
+            fill: true,
+            tension: 0.4
+        }]
     },
-    options:{responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:false}},
-        scales:{y:{beginAtZero:true,grid:{color:'#f1f5f9'},ticks:{font:{size:13},stepSize:1}},x:{grid:{display:false},ticks:{font:{size:13}}}}}
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+// dropdown change
+document.getElementById('filterChart').addEventListener('change', function () {
+    if (this.value === 'harian') {
+        currentData = dataHarian;
+    } else if (this.value === 'mingguan') {
+        currentData = dataMingguan;
+    } else {
+        currentData = dataBulanan;
+    }
+
+    chart.data.labels = currentData.labels;
+    chart.data.datasets[0].data = currentData.data;
+    chart.update();
 });
 
 new Chart(document.getElementById('rekChart'),{

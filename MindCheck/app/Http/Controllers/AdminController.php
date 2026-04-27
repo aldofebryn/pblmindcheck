@@ -54,7 +54,9 @@ class AdminController extends Controller
         $this->guardAdmin();
 
         $totalSesi  = Screening::whereNotNull('selesai_at')->count();
-        $totalToken = Patient::count();
+        $totalUser = Screening::whereNotNull('selesai_at')
+            ->distinct('patient_token')
+            ->count('patient_token');
 
         // Hitung kasus perlu perhatian (R16)
         $r16 = Result::where('rekomendasi', 'R16')->count();
@@ -67,14 +69,53 @@ class AdminController extends Controller
             ->whereNotNull('selesai_at')
             ->count();
 
-        // Tren 7 hari terakhir
-        $tren = collect(range(6, 0))->map(function ($i) {
-            $tgl = now()->subDays($i);
+        // tren  7 hari terakhir
+        // $tren = collect(range(6, 0))->map(function ($i) {
+        //    $tgl = now()->subDays($i);
+        //    return [
+        //        'label' => $tgl->format('d M'),
+        //        'count' => Screening::whereDate('selesai_at', $tgl)->whereNotNull('selesai_at')->count(),
+        //    ];
+        // });
+        
+        // ================== VISUALISASI USER ==================
+        // Harian (7 hari terakhir)
+            $userHarian = collect(range(6, 0))->map(function ($i) {
+                $tgl = now()->subDays($i);
             return [
                 'label' => $tgl->format('d M'),
-                'count' => Screening::whereDate('selesai_at', $tgl)->whereNotNull('selesai_at')->count(),
+                'count' => Screening::whereDate('selesai_at', $tgl)
+            ->whereNotNull('selesai_at')
+            ->distinct('patient_token')
+            ->count('patient_token'),
             ];
         });
+        // Mingguan (4 minggu terakhir)
+            $userMingguan = collect(range(3, 0))->map(function ($i) {
+                $start = now()->subWeeks($i)->startOfWeek();
+                $end   = now()->subWeeks($i)->endOfWeek();
+
+            return [
+                'label' => 'Minggu ' . $start->format('d M'),
+                'count' => Screening::whereBetween('selesai_at', [$start, $end])
+            ->whereNotNull('selesai_at')
+            ->distinct('patient_token')
+            ->count('patient_token'),
+            ];
+        });
+        // Bulanan (6 bulan terakhir)
+            $userBulanan = collect(range(5, 0))->map(function ($i) {
+                $bulan = now()->subMonths($i);
+
+            return [
+                'label' => $bulan->format('M Y'),
+                'count' => Screening::whereMonth('selesai_at', $bulan->month)
+            ->whereYear('selesai_at', $bulan->year)
+            ->whereNotNull('selesai_at')
+            ->distinct('patient_token')
+            ->count('patient_token'),
+            ];
+         });
 
         // Distribusi kategori depresi untuk chart
         $katLabels  = ['Normal', 'Ringan', 'Sedang', 'Berat', 'Sangat Berat'];
@@ -96,19 +137,22 @@ class AdminController extends Controller
 
         return view('admin.dashboard', compact(
             'totalSesi',
-            'totalToken',
+            'totalUser',
             'r16',
             'r17',
             'r18',
             'alertCount',
-            'tren',
+            //'tren',
             'katLabels',
             'katColors',
             'katDepresi',
             'katKecemasan',
             'katStres',
             'recent',
-            'topToken'
+            'topToken',
+            'userHarian',
+            'userMingguan',
+            'userBulanan'
         ));
     }
 
