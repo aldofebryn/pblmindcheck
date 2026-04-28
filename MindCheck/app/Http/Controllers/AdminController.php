@@ -194,4 +194,85 @@ class AdminController extends Controller
         $adminName = session('admin_name');
         return view('admin.settings', compact('adminName'));
     }
+
+    //CRUD DAFTAR ADMIN
+    
+    // INDEX
+    public function adminsIndex()
+    {
+        $this->guardAdmin();
+
+        $admins = Admin::latest()->get();
+        return view('admin.admins.index', compact('admins'));
+    }
+
+    // CREATE PAGE
+    public function adminsCreate()
+    {
+        $this->guardAdmin();
+        return view('admin.admins.create');
+    }
+
+    // STORE
+    public function adminsStore(Request $request)
+    {
+        $this->guardAdmin();
+
+        $request->validate([
+            'name'     => 'required',
+            'email'    => 'required|email|unique:admins,email',
+            'password' => 'required|min:6'
+        ]);
+
+        Admin::create([
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
+            'status'   => $request->status ?? 1
+        ]);
+
+        return redirect()->route('admin.admins.index')
+            ->with('success', 'Admin berhasil ditambahkan');
+    }
+
+    // EDIT PAGE
+    public function adminsEdit($id)
+    {
+        $this->guardAdmin();
+
+        $admin = Admin::findOrFail($id);
+        return view('admin.admins.edit', compact('admin'));
+    }
+
+    // UPDATE
+    public function adminsUpdate(Request $request, $id)
+    {
+        $this->guardAdmin();
+
+        $admin = Admin::findOrFail($id);
+
+        $request->validate([
+            'name'  => 'required',
+            'email' => 'required|email|unique:admins,email,' . $id,
+        ]);
+
+        $admin->update([
+            'name'   => $request->name,
+            'email'  => $request->email,
+            'status' => $request->status
+        ]);
+
+        return redirect()->route('admin.admins.index')
+            ->with('success', 'Admin berhasil diupdate');
+    }
+
+    // DELETE (Soft Delete)
+    public function adminsDelete($id)
+    {
+        $this->guardAdmin();
+
+        Admin::findOrFail($id)->delete();
+
+        return back()->with('success', 'Admin berhasil dihapus');
+    }
 }

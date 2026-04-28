@@ -21,6 +21,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
 
     Route::get('/',       [AdminController::class, 'dashboard'])->name('dashboard');
+
+    Route::get('/admins', [AdminController::class, 'adminsIndex'])->name('admins.index');
+    Route::get('/admins/create', [AdminController::class, 'adminsCreate'])->name('admins.create');
+    Route::post('/admins', [AdminController::class, 'adminsStore'])->name('admins.store');
+    Route::get('/admins/{id}/edit', [AdminController::class, 'adminsEdit'])->name('admins.edit');
+    Route::put('/admins/{id}', [AdminController::class, 'adminsUpdate'])->name('admins.update');
+    Route::delete('/admins/{id}', [AdminController::class, 'adminsDelete'])->name('admins.delete');
+    Route::get('/admins/trash', [AdminController::class, 'adminsTrash'])->name('admins.trash');
+
     Route::get('/pengaturan', [AdminController::class, 'settings'])->name('settings');
     Route::get('/token/{token}', [AdminController::class, 'tokenDetail'])->name('token.detail');
 
