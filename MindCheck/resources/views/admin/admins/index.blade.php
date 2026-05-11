@@ -18,7 +18,7 @@
     <div class="flex gap-3">
         <a href="{{ route('admin.admins.trash') }}" 
            class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm">
-           Trash
+           Tong Sampah
         </a>
 
         <a href="{{ route('admin.admins.create') }}" 

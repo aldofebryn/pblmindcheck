@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\Hash;
 class AdminController extends Controller
 {
     // ── Auth guard sederhana (session-based) ─────────────────────
-    private function guardAdmin(): void
+    private function guardAdmin()
     {
-        if (! session('admin_id')) {
-            abort(redirect()->route('admin.login'));
+        if (!session('admin_id')) {
+            return redirect()->route('admin.login')->send();
         }
     }
 
@@ -195,14 +195,15 @@ class AdminController extends Controller
         return view('admin.settings', compact('adminName'));
     }
 
-    //CRUD DAFTAR ADMIN
-    
+    // ================= CRUD ADMIN =================
+
     // INDEX
     public function adminsIndex()
     {
         $this->guardAdmin();
 
         $admins = Admin::latest()->get();
+
         return view('admin.admins.index', compact('admins'));
     }
 
@@ -210,6 +211,7 @@ class AdminController extends Controller
     public function adminsCreate()
     {
         $this->guardAdmin();
+
         return view('admin.admins.create');
     }
 
@@ -218,20 +220,22 @@ class AdminController extends Controller
     {
         $this->guardAdmin();
 
-        $request->validate([
-            'name'     => 'required',
-            'email'    => 'required|email|unique:admins,email',
-            'password' => 'required|min:6'
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:admins,email',
+            'password' => 'required|min:6',
+            'status' => 'required'
         ]);
 
         Admin::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-            'status'   => $request->status ?? 1
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'status' => $validated['status']
         ]);
 
-        return redirect()->route('admin.admins.index')
+        return redirect()
+            ->route('admin.admins.index')
             ->with('success', 'Admin berhasil ditambahkan');
     }
 
@@ -241,6 +245,7 @@ class AdminController extends Controller
         $this->guardAdmin();
 
         $admin = Admin::findOrFail($id);
+
         return view('admin.admins.edit', compact('admin'));
     }
 
@@ -251,28 +256,34 @@ class AdminController extends Controller
 
         $admin = Admin::findOrFail($id);
 
-        $request->validate([
-            'name'  => 'required',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
             'email' => 'required|email|unique:admins,email,' . $id,
+            'status' => 'required'
         ]);
 
         $admin->update([
-            'name'   => $request->name,
-            'email'  => $request->email,
-            'status' => $request->status
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'status' => $validated['status']
         ]);
 
-        return redirect()->route('admin.admins.index')
+        return redirect()
+            ->route('admin.admins.index')
             ->with('success', 'Admin berhasil diupdate');
     }
 
-    // DELETE (Soft Delete)
+    // DELETE
     public function adminsDelete($id)
     {
         $this->guardAdmin();
 
-        Admin::findOrFail($id)->delete();
+        $admin = Admin::findOrFail($id);
 
-        return back()->with('success', 'Admin berhasil dihapus');
+        $admin->delete();
+
+        return redirect()
+            ->route('admin.admins.index')
+            ->with('success', 'Admin berhasil dihapus');
     }
 }
