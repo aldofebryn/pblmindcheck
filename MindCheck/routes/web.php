@@ -1,40 +1,58 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ScreeningController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\Patient;
+use App\Http\Controllers\Admin;
 
-// ── Pasien ──────────────────────────────────────────────────────
-Route::get('/',            [ScreeningController::class, 'landing'])->name('landing');
-Route::get('/token',       [ScreeningController::class, 'tokenPage'])->name('token');
-Route::post('/token',      [ScreeningController::class, 'processToken'])->name('token.process');
-Route::get('/screening',   [ScreeningController::class, 'screening'])->name('screening');
-Route::post('/screening',  [ScreeningController::class, 'submitScreening'])->name('screening.submit');
-Route::get('/hasil/{screening}', [ScreeningController::class, 'hasil'])->name('hasil');
-Route::get('/riwayat',     [ScreeningController::class, 'history'])->name('history');
+// ── Landing ──────────────────────────────────────────────────────
+Route::get('/', fn() => view('welcome', [
+    'totalSesi' => \App\Models\Screening::whereNotNull('selesai_at')->count(),
+]))->name('landing');
 
-// ── Admin ───────────────────────────────────────────────────────
+// ── Pasien ───────────────────────────────────────────────────────
+Route::get('/patient-login',  [Patient\AuthController::class, 'showLogin'])->name('patient.login');
+Route::post('/patient-login', [Patient\AuthController::class, 'process'])->name('patient.login.process')->middleware('throttle:10,1');
+Route::post('/patient-logout',[Patient\AuthController::class, 'logout'])->name('patient.logout');
+
+Route::get('/screening',  [Patient\ScreeningController::class, 'show'])->name('screening');
+Route::post('/screening', [Patient\ScreeningController::class, 'submit'])->name('screening.submit');
+Route::get('/hasil/{screening}', [Patient\ScreeningController::class, 'hasil'])->name('hasil');
+
+Route::get('/dashboard',         [Patient\DashboardController::class, 'index'])->name('patient.dashboard');
+Route::get('/pengaturan-pasien', [Patient\DashboardController::class, 'settings'])->name('patient.settings');
+Route::put('/pengaturan-pasien', [Patient\DashboardController::class, 'updateSettings'])->name('patient.settings.update');
+
+// ── Admin ────────────────────────────────────────────────────────
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/login',  [AdminController::class, 'loginPage'])->name('login');
-    Route::post('/login', [AdminController::class, 'login'])->name('login.post');
-    Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
 
-    Route::get('/',       [AdminController::class, 'dashboard'])->name('dashboard');
+    // Auth
+    Route::get('/login',  [Admin\AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [Admin\AuthController::class, 'login'])->name('login.post')->middleware('throttle:10,1');
+    Route::post('/logout',[Admin\AuthController::class, 'logout'])->name('logout');
 
-    Route::get('/admins', [AdminController::class, 'adminsIndex'])->name('admins.index');
-    Route::get('/admins/create', [AdminController::class, 'adminsCreate'])->name('admins.create');
-    Route::post('/admins', [AdminController::class, 'adminsStore'])->name('admins.store');
-    Route::get('/admins/{id}/edit', [AdminController::class, 'adminsEdit'])->name('admins.edit');
-    Route::put('/admins/{id}', [AdminController::class, 'adminsUpdate'])->name('admins.update');
-    Route::delete('/admins/{id}', [AdminController::class, 'adminsDelete'])->name('admins.delete');
-    Route::get('/admins/trash', [AdminController::class, 'adminsTrash'])->name('admins.trash');
+    // Dashboard
+    Route::get('/', [Admin\DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/pengaturan', [AdminController::class, 'settings'])->name('settings');
-    Route::get('/token/{token}', [AdminController::class, 'tokenDetail'])->name('token.detail');
+    // Pengaturan
+    Route::get('/pengaturan', [Admin\SettingsController::class, 'index'])->name('settings');
 
-    Route::resource('questions', QuestionController::class)->except(['show']);
-    Route::get('questions/trash', [QuestionController::class, 'trash'])->name('questions.trash');
-    Route::patch('questions/{id}/restore', [QuestionController::class, 'restore'])->name('questions.restore');
-    Route::delete('questions/{id}/force', [QuestionController::class, 'forceDelete'])->name('questions.force');
+    // Manajemen Pasien
+    Route::resource('patients', Admin\PatientController::class);
+
+    // Manajemen Pertanyaan — trash HARUS sebelum resource agar tidak ditangkap sebagai {question}
+    Route::get('questions/trash',            [Admin\QuestionController::class, 'trash'])->name('questions.trash');
+    Route::patch('questions/{id}/restore',   [Admin\QuestionController::class, 'restore'])->name('questions.restore');
+    Route::delete('questions/{id}/force',    [Admin\QuestionController::class, 'forceDelete'])->name('questions.force');
+    Route::resource('questions', Admin\QuestionController::class)->except(['show']);
+
+    // Manajemen Akun Admin — trash HARUS sebelum resource
+    Route::get('admins/trash',               [Admin\AdminUserController::class, 'trash'])->name('admins.trash');
+    Route::patch('admins/{id}/restore',      [Admin\AdminUserController::class, 'restore'])->name('admins.restore');
+    Route::delete('admins/{id}/force',       [Admin\AdminUserController::class, 'forceDelete'])->name('admins.force');
+    Route::get('admins',                     [Admin\AdminUserController::class, 'index'])->name('admins.index');
+    Route::get('admins/create',              [Admin\AdminUserController::class, 'create'])->name('admins.create');
+    Route::post('admins',                    [Admin\AdminUserController::class, 'store'])->name('admins.store');
+    Route::get('admins/{id}/edit',           [Admin\AdminUserController::class, 'edit'])->name('admins.edit');
+    Route::put('admins/{id}',                [Admin\AdminUserController::class, 'update'])->name('admins.update');
+    Route::delete('admins/{id}',             [Admin\AdminUserController::class, 'destroy'])->name('admins.delete');
 });

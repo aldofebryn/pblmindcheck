@@ -10,7 +10,7 @@
 <body class="bg-slate-50 antialiased min-h-screen flex flex-col">
 
 {{-- Header --}}
-<header class="bg-white/90 backdrop-blur-md border-b border-slate-100 sticky top-0 z-40" style="height:72px">
+<header class="bg-white/90 backdrop-blur-md border-b border-slate-100 sticky top-0 z-40" style="height:60px">
     <div class="w-full px-6 lg:px-14 xl:px-24 h-full flex items-center justify-between">
         <div class="flex items-center gap-3">
             <span class="w-11 h-11 bg-blue-600 rounded-xl flex items-center justify-center">
@@ -19,10 +19,10 @@
                           d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                 </svg>
             </span>
-            <span class="font-bold text-slate-900 text-2xl">Skrining DASS-21</span>
+            <span class="font-bold text-slate-900 text-lg">Skrining DASS-21</span>
         </div>
 
-        <a href="{{ route('landing') }}"
+        <a href="{{ route('patient.dashboard') }}"
            class="px-5 py-2.5 text-slate-500 hover:text-slate-700 text-base font-semibold rounded-xl hover:bg-slate-100 transition">
             Keluar
         </a>
@@ -82,15 +82,15 @@
             <button type="button"
                     data-value="{{ $val }}"
                     onclick="selectAnswer({{ $val }})"
-                    class="option-btn flex items-start gap-5 p-6 lg:p-7 rounded-2xl border-2 border-slate-100 bg-white hover:border-blue-300 hover:bg-blue-50 transition-all text-left group">
+                    class="option-btn flex items-start gap-4 p-5 rounded-2xl border-2 border-slate-100 bg-white hover:border-blue-300 hover:bg-blue-50 transition-all text-left group">
 
                 <span class="w-8 h-8 rounded-full border-2 border-slate-200 group-hover:border-blue-400 flex items-center justify-center shrink-0 check-circle transition-colors">
                     <span class="w-4 h-4 rounded-full bg-blue-600 hidden check-dot"></span>
                 </span>
 
                 <div>
-                    <p class="font-bold text-slate-900 text-lg lg:text-xl">{{ $label }}</p>
-                    <p class="text-slate-400 mt-1 text-sm lg:text-base">{{ $desc }}</p>
+                    <p class="font-bold text-slate-900 text-base">{{ $label }}</p>
+                    <p class="text-slate-400 mt-0.5 text-sm">{{ $desc }}</p>
                 </div>
             </button>
             @endforeach

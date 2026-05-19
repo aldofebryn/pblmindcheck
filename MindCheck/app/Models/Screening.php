@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Screening extends Model
 {
-    protected $fillable = ['patient_token', 'selesai_at'];
+    protected $fillable = ['patient_id', 'selesai_at'];
     protected $casts    = ['selesai_at' => 'datetime'];
 
     public function patient()
     {
-        return $this->belongsTo(Patient::class, 'patient_token', 'token');
+        return $this->belongsTo(Patient::class);
     }
     public function answers()
     {

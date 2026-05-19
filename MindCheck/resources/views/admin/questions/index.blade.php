@@ -57,4 +57,15 @@
         </div>
     </div>
 </div>
+
+@php
+    $modalId           = 'deleteQuestion';
+    $modalTitle        = 'Hapus Pertanyaan?';
+    $modalBody         = 'Pertanyaan akan dipindahkan ke <strong>tong sampah</strong> dan dapat dipulihkan kapan saja.';
+    $modalWarning      = 'Pertanyaan tidak akan aktif selama berada di tong sampah.';
+    $modalConfirmLabel = 'Ya, Hapus';
+    $modalConfirmColor = 'red';
+@endphp
+@include('admin.partials.confirm-modal')
+
 @endsection

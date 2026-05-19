@@ -21,12 +21,12 @@ namespace App\Services;
 final class TreeNode
 {
     public function __construct(
-        public readonly string    $type,       // 'split' | 'leaf'
-        public readonly ?float    $threshold,  // hanya untuk split node
-        public readonly ?TreeNode $left,       // skor <= threshold
-        public readonly ?TreeNode $right,      // skor >  threshold
-        public readonly ?string   $label,      // hanya untuk leaf node
-        public readonly array     $meta = [],  // info tambahan (narasi, warna)
+        public readonly string    $type,
+        public readonly ?float    $threshold,
+        public readonly ?TreeNode $left,
+        public readonly ?TreeNode $right,
+        public readonly ?string   $label,
+        public readonly array     $meta = [],
     ) {}
 
     public static function split(float $threshold, TreeNode $left, TreeNode $right): self

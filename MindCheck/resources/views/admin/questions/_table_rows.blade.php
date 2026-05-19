@@ -26,11 +26,12 @@
     </td>
     <td class="px-6 py-5 whitespace-nowrap text-right align-top">
         <div class="flex items-center justify-end gap-3">
-            <a href="{{ route('admin.questions.edit', $q->id) }}" 
+            <a href="{{ route('admin.questions.edit', $q->id) }}"
                class="text-blue-600 hover:text-blue-800 font-medium transition">Edit</a>
-            <button type="button" onclick="confirmDelete({{ $q->id }})" 
+            <button type="button"
+                    onclick="window.openModal_deleteQuestion('delete-q-{{ $q->id }}')"
                     class="text-red-600 hover:text-red-800 font-medium transition">Hapus</button>
-            <form id="delete-form-{{ $q->id }}" action="{{ route('admin.questions.destroy', $q->id) }}" method="POST" class="hidden">
+            <form id="delete-q-{{ $q->id }}" action="{{ route('admin.questions.destroy', $q->id) }}" method="POST" class="hidden">
                 @csrf @method('DELETE')
             </form>
         </div>
@@ -41,11 +42,3 @@
     <td colspan="5" class="px-6 py-12 text-center text-slate-400">Tidak ada pertanyaan</td>
 </tr>
 @endforelse
-
-<script>
-function confirmDelete(id) {
-    if (confirm('Yakin ingin menghapus pertanyaan ini? Data akan dipindahkan ke tong sampah.')) {
-        document.getElementById('delete-form-' + id).submit();
-    }
-}
-</script>

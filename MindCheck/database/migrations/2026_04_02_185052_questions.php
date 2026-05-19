@@ -1,4 +1,4 @@
-<?php // 2026_04_01_083308_create_questions_table.php
+<?php
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

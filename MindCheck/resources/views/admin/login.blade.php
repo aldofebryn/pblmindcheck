@@ -15,10 +15,8 @@
     <div class="relative w-full max-w-sm sm:max-w-md">
 
         <div class="text-center mb-8 sm:mb-10 relative z-10">
-            <span class="w-14 h-14 sm:w-16 sm:h-16 bg-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-5 shadow-lg">
-                <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                </svg>
+            <span class="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center mx-auto mb-4 sm:mb-5">
+                <img src="{{ asset('images/logo.png') }}" class="w-full h-full object-contain" alt="Logo">
             </span>
             <h1 class="text-xl sm:text-2xl font-bold text-slate-900">MindCheck Admin</h1>
             <p class="text-slate-400 mt-1 sm:mt-1.5 text-sm sm:text-base">Masuk ke panel administrasi</p>

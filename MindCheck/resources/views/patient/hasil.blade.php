@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.patient')
 @section('title', 'Hasil Screening DASS-21')
 
 @push('head')
@@ -6,13 +6,23 @@
 @endpush
 
 @section('content')
-<div class="w-full max-w-screen-2xl mx-auto px-4 sm:px-8 lg:px-16 py-10">
+<div class="w-full max-w-6xl mx-auto py-2">
 
     {{-- HEADER --}}
-    <div class="border-b border-slate-200 pb-5 mb-10">
-        <p class="text-sm font-semibold text-slate-400 uppercase tracking-wide">Hasil Screening DASS-21</p>
-        <h1 class="text-3xl lg:text-4xl font-bold text-slate-800 mt-1">Laporan Riwayat Screening</h1>
-        <p class="text-slate-500 text-sm mt-2">{{ $screening->selesai_at?->format('d M Y, H:i') }} WIB</p>
+    <div class="border-b border-slate-200 pb-5 mb-10 flex flex-wrap items-start justify-between gap-4">
+        <div>
+            <p class="text-sm font-semibold text-slate-400 uppercase tracking-wide">Hasil Screening DASS-21</p>
+            <h1 class="text-3xl lg:text-4xl font-bold text-slate-800 mt-1">Laporan Riwayat Screening</h1>
+            <p class="text-slate-500 text-sm mt-2">{{ $screening->selesai_at?->format('d M Y, H:i') }} WIB</p>
+        </div>
+        <div class="flex flex-col items-end gap-2">
+            <div class="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-blue-700 font-semibold px-4 py-2.5 rounded-xl text-sm">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Skrining Berikutnya: {{ $nextScreeningDate->format('d F Y') }}
+            </div>
+        </div>
     </div>
 
     {{-- GRAFIK VISUAL (Bar + Line) --}}
@@ -131,18 +141,7 @@
         </div>
         @endif
 
-        {{-- Tombol aksi – diperbesar dan jelas --}}
-        <div class="flex flex-wrap gap-4 mt-2">
-            <a href="{{ route('screening') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-7 py-3 rounded-xl shadow-md transition">
-                Skrining Lagi
-            </a>
-            <a href="{{ route('history') }}" class="inline-flex items-center gap-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold px-7 py-3 rounded-xl shadow-sm transition">
-                Lihat Riwayat
-            </a>
-            <a href="{{ route('landing') }}" class="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-7 py-3 rounded-xl shadow-sm transition">
-                Kembali ke Dashboard
-            </a>
-        </div>
+
 
         {{-- Konsultasi screening selanjutnya --}}
         <div class="mt-8 pt-5 border-t border-slate-200 text-center">
@@ -184,18 +183,7 @@
     </div>
     @endif
 
-    {{-- Jejak decision tree --}}
-    <details class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
-        <summary class="px-6 py-3 text-sm font-medium text-slate-500 cursor-pointer hover:text-slate-700 select-none">
-            Lihat detail keputusan klinis
-        </summary>
-        <div class="px-6 pb-4 font-mono text-sm text-slate-600 space-y-1 border-t border-slate-100 pt-3">
-            <div>Depresi   : {{ $result->skor_depresi }} → {{ $result->kat_depresi }}</div>
-            <div>Kecemasan : {{ $result->skor_kecemasan }} → {{ $result->kat_kecemasan }}</div>
-            <div>Stres     : {{ $result->skor_stres }} → {{ $result->kat_stres }}</div>
-            <div class="pt-1 text-slate-400">Rekomendasi: {{ $result->rekomendasi }} → {{ $result->rekLabel() }}</div>
-        </div>
-    </details>
+
 </div>
 @endsection
 

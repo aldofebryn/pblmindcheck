@@ -12,37 +12,22 @@
 
 <nav class="bg-white/90 backdrop-blur-md border-b border-slate-100 sticky top-0 z-40">
     <div class="w-full px-6 lg:px-14 xl:px-24"
-         style="height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+         style="height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px">
 
         {{-- Logo --}}
         <a href="{{ route('landing') }}" class="flex items-center gap-3 shrink-0">
-            <span class="w-11 h-11 bg-blue-600 rounded-xl flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                </svg>
+            <span class="w-9 h-9 flex items-center justify-center">
+                <img src="{{ asset('images/logo.png') }}" class="w-full h-full object-contain" alt="Logo">
             </span>
-            <span class="font-bold text-slate-900 text-2xl">MindCheck</span>
+            <span class="font-bold text-slate-900 text-lg">MindCheck</span>
         </a>
 
         {{-- Menu --}}
         <div class="flex items-center gap-3">
-    @if(session('patient_token'))
-        <a href="{{ route('screening') }}"
+        <a href="{{ route('patient.login') }}"
            class="px-6 py-3 text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition font-semibold text-lg">
-            Skrining
+            Mulai Skrining
         </a>
-
-        <a href="{{ route('history') }}"
-           class="px-6 py-3 text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition font-semibold text-lg">
-            Riwayat
-        </a>
-    @else
-        <a href="{{ route('token') }}"
-           class="px-6 py-3 text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition font-semibold text-lg">
-            Mulai
-        </a>
-    @endif
 
     {{-- Divider --}}
     <div class="w-px h-7 bg-slate-300 mx-2"></div>

@@ -4,7 +4,7 @@
 @section('content')
 
 {{-- ── Hero ───────────────────────────────────────────────────── --}}
-<section class="w-full px-6 lg:px-14 xl:px-24 py-24 lg:py-28 min-h-screen flex items-center">
+<section class="w-full px-6 lg:px-14 xl:px-24 py-14 lg:py-20 min-h-screen flex items-center">
     <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center w-full">
 
         {{-- Kiri: teks --}}
@@ -17,22 +17,22 @@
                 Anonim · Berbasis Ilmiah · Gratis
             </span>
 
-            <h1 class="font-bold text-slate-900 leading-tight mb-8 
-                       text-5xl sm:text-6xl lg:text-7xl xl:text-[5.5rem]">
+            <h1 class="font-bold text-slate-900 leading-tight mb-6
+                       text-3xl sm:text-4xl lg:text-5xl xl:text-6xl">
                 Kenali kondisi<br>
                 <span class="text-blue-600">kesehatan mental</span><br>
                 Anda hari ini.
             </h1>
 
-            <p class="text-slate-500 leading-relaxed mb-10 
-                      text-lg sm:text-xl lg:text-2xl max-w-2xl">
+            <p class="text-slate-500 leading-relaxed mb-8 
+                      text-base sm:text-lg max-w-xl">
                 Skrining DASS-21 mengukur tingkat depresi, kecemasan, dan stres dalam ±5 menit.
                 Hasilnya ilmiah, anonim, dan dapat dipantau dari waktu ke waktu.
             </p>
 
             <div class="flex flex-wrap gap-5 mb-10">
-                <a href="{{ route('token') }}"
-                   class="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-xl text-lg transition shadow-md">
+                <a href="{{ route('patient.login') }}"
+                   class="inline-flex items-center gap-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl text-base transition shadow-md">
                     Mulai Skrining
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
@@ -40,12 +40,7 @@
                     </svg>
                 </a>
 
-                @if(session('patient_token'))
-                <a href="{{ route('history') }}"
-                   class="inline-flex items-center bg-white border border-slate-300 hover:border-slate-400 text-slate-700 font-semibold px-8 py-4 rounded-xl text-lg transition">
-                    Lihat Riwayat
-                </a>
-                @endif
+
             </div>
 
             @if($totalSesi > 0)
@@ -98,7 +93,7 @@
 
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             @foreach([
-                ['1','Dapatkan Token','Token anonim dibuat tanpa identitas.','blue'],
+                ['1','Buat Akun','Daftar atau masuk dengan username dan password Anda.', 'blue'],
                 ['2','Isi DASS-21','Jawab 21 pertanyaan kondisi Anda.','indigo'],
                 ['3','Lihat Hasil','Dapatkan hasil & rekomendasi.','violet'],
             ] as [$no,$judul,$desc,$c])

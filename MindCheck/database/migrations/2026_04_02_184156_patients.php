@@ -1,4 +1,4 @@
-<?php // 2026_04_01_083153_create_patients_table.php
+<?php
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -8,8 +8,8 @@ return new class extends Migration {
     {
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
-            $table->uuid('token')->unique()->index();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
     public function down(): void

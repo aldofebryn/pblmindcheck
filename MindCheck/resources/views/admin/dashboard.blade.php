@@ -7,16 +7,21 @@
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
 @php
 $cards = [
-    ['Total Sesi',       $totalSesi,  'bg-blue-50 text-blue-600',
-     'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'],
-    ['Total User',       $totalUser, 'bg-violet-50 text-violet-600',
-     'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'],
-    ['Perlu Perhatian',  $r16,        'bg-red-50 text-red-600',
-     'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'],
-    ['Pantau Mandiri',   $r18,        'bg-emerald-50 text-emerald-600',
-     'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
+    ['Total Sesi', $totalSesi, 'bg-blue-50 text-blue-600',
+     // Clipboard list — mewakili "catatan / sesi"
+     'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01'],
+    ['Total User', $totalUser, 'bg-violet-50 text-violet-600',
+     // User group — mewakili "pengguna / pasien"
+     'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z'],
+    ['Perlu Perhatian', $r16, 'bg-red-50 text-red-600',
+     // Bell alert — mewakili "peringatan / notifikasi darurat"
+     'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'],
+    ['Pantau Mandiri', $r18, 'bg-emerald-50 text-emerald-600',
+     // Heart — mewakili "kondisi baik / kesehatan terjaga"
+     'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'],
 ];
 @endphp
+
 @foreach($cards as [$label,$val,$ic,$path])
 <div class="bg-white border border-slate-100 rounded-2xl p-7 shadow-sm">
     <span class="w-12 h-12 {{ $ic }} rounded-2xl flex items-center justify-center mb-5">
@@ -76,13 +81,13 @@ $cards = [
 <div class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
     <div class="px-7 py-5 border-b border-slate-100 flex items-center justify-between">
         <h3 class="font-bold text-slate-800 text-lg">10 Hasil skrining terbaru</h3>
-        <span class="text-sm text-slate-400">Token ditampilkan anonim</span>
+        <span class="text-sm text-slate-400">ID ditampilkan anonim</span>
     </div>
     <div class="overflow-x-auto">
         <table class="w-full">
             <thead>
                 <tr class="bg-slate-50 text-sm font-bold text-slate-400 uppercase tracking-wider">
-                    <th class="px-7 py-4 text-left">Token</th>
+                    <th class="px-7 py-4 text-left">ID Pasien</th>
                     <th class="px-5 py-4 text-center">D</th>
                     <th class="px-5 py-4 text-center">A</th>
                     <th class="px-5 py-4 text-center">S</th>
@@ -95,7 +100,7 @@ $cards = [
                 @forelse($recent as $s)
                 @php $r=$s->result; @endphp
                 <tr class="hover:bg-slate-50/70 transition-colors">
-                    <td class="px-7 py-4 font-mono text-slate-500">{{ substr($s->patient_token,0,8) }}…</td>
+                    <td class="px-7 py-4 font-mono text-slate-500">{{ $s->patient_id }}</td>
                     @if($r)
                     <td class="px-5 py-4 text-center">
                         <span class="font-bold text-slate-800 text-lg block">{{ $r->skor_depresi }}</span>
@@ -117,7 +122,7 @@ $cards = [
                     @endif
                     <td class="px-5 py-4 text-slate-400 whitespace-nowrap">{{ $s->selesai_at?->diffForHumans() }}</td>
                     <td class="px-5 py-4">
-                        <a href="{{ route('admin.token.detail',$s->patient_token) }}" class="text-blue-600 hover:text-blue-700 font-bold">Detail →</a>
+                        <a href="{{ route('admin.patients.show',$s->patient_id) }}" class="text-blue-600 hover:text-blue-700 font-bold">Detail →</a>
                     </td>
                 </tr>
                 @empty

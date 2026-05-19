@@ -2,16 +2,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Patient extends Model
 {
-    protected $primaryKey = 'token';
-    public $incrementing  = false;
-    protected $keyType    = 'string';
-    protected $fillable   = ['token'];
+    use SoftDeletes;
+
+    protected $fillable = ['alias', 'admin_notes', 'username', 'password', 'umur', 'status_pekerjaan'];
+
+    protected $hidden = [
+        'password',
+    ];
+
+    protected $casts = [
+        'deleted_at' => 'datetime',
+    ];
 
     public function screenings()
     {
-        return $this->hasMany(Screening::class, 'patient_token', 'token');
+        return $this->hasMany(Screening::class);
     }
 }
