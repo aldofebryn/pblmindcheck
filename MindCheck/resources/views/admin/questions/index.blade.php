@@ -53,8 +53,32 @@
             </table>
         </div>
         <div class="px-6 py-4 border-t border-slate-200 bg-slate-50">
-            {{ $questions->appends(['subskala' => request('subskala')])->links() }}
-        </div>
+    <div class="flex justify-center items-center gap-4">
+        {{-- Tombol Previous --}}
+        @if ($questions->onFirstPage())
+            <span class="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-400 cursor-not-allowed font-medium text-sm">
+                « Previous
+            </span>
+        @else
+            <a href="{{ $questions->previousPageUrl() }}&subskala={{ request('subskala') }}" 
+               class="px-5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition font-medium text-sm">
+                « Previous
+            </a>
+        @endif
+
+        {{-- Tombol Next --}}
+        @if ($questions->hasMorePages())
+            <a href="{{ $questions->nextPageUrl() }}&subskala={{ request('subskala') }}" 
+               class="px-5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition font-medium text-sm">
+                Next »
+            </a>
+        @else
+            <span class="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-400 cursor-not-allowed font-medium text-sm">
+                Next »
+            </span>
+        @endif
+    </div>
+</div>
     </div>
 </div>
 
