@@ -35,7 +35,11 @@ class AuthController extends Controller
                 'status_pekerjaan' => $request->status_pekerjaan,
             ]);
 
-            session(['patient_id' => $patient->id]);
+            session([
+                'patient_id' => $patient->id,
+                'patient_name' => $patient->username,
+            ]);
+
             return redirect()->route('patient.dashboard')
                 ->with('success', 'Akun berhasil dibuat. Selamat datang di MindCheck!');
         }
@@ -49,7 +53,10 @@ class AuthController extends Controller
         $patient = Patient::where('username', $request->username)->first();
 
         if ($patient && $patient->password && Hash::check($request->password, $patient->password)) {
-            session(['patient_id' => $patient->id]);
+            session([
+                'patient_id' => $patient->id,
+                'patient_name' => $patient->username,
+            ]);
             return redirect()->route('patient.dashboard');
         }
 
@@ -59,7 +66,7 @@ class AuthController extends Controller
     // ── Logout ────────────────────────────────────────────────────
     public function logout(Request $request)
     {
-        $request->session()->forget('patient_id');
+        $request->session()->forget(['patient_id', 'patient_name']);
         return redirect()->route('landing');
     }
 }

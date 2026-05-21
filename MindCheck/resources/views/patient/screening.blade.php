@@ -23,6 +23,7 @@
         </div>
 
         <a href="{{ route('patient.dashboard') }}"
+           onclick="confirmExit(event, this.href)"
            class="px-5 py-2.5 text-slate-500 hover:text-slate-700 text-base font-semibold rounded-xl hover:bg-slate-100 transition">
             Keluar
         </a>
@@ -97,48 +98,75 @@
         </div>
 
         {{-- Nav --}}
-        <div class="flex justify-between items-center mt-10 pb-12">
-            <button type="button" onclick="prevQuestion()" id="btn-prev"
-                    class="flex items-center gap-2 px-5 py-3 text-slate-400 hover:text-slate-700 disabled:opacity-0 transition text-base font-semibold">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15 19l-7-7 7-7"/>
-                </svg>
-                Kembali
-            </button>
+        <div class="flex justify-between items-center mt-10 pb-12 gap-4">
+<button type="button" onclick="prevQuestion()" id="btn-prev"
+        class="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-0 transition text-base font-semibold">
+    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 19l-7-7 7-7"/>
+    </svg>
+    Kembali
+</button>
 
-            <span class="text-slate-400 text-sm lg:text-base">
-                Jawaban tersimpan otomatis
+            <span class="text-slate-400 text-sm lg:text-base hidden sm:block">
+                Progress tersimpan otomatis
             </span>
+
+            <button type="button"
+                    onclick="nextQuestion()"
+                    id="btn-next"
+                    class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition">
+                Next
+            </button>
         </div>
     </form>
 </main>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 const QUESTIONS = @json($questionsFormatted);
 const LABEL_MAP = {Depression:'Depresi', Anxiety:'Kecemasan', Stress:'Stres'};
 
 let current = 0;
-let answers  = {};
+let answers = @json($savedAnswers ?? []);
+let isCompletingMissing = false;
+
+const AUTOSAVE_URL = "{{ route('screening.autosave') }}";
+const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+const firstUnansweredIndex = QUESTIONS.findIndex(q => answers[q.id] === undefined || answers[q.id] === null);
+
+if (firstUnansweredIndex !== -1) {
+    current = firstUnansweredIndex;
+} else {
+    current = QUESTIONS.length - 1;
+}
 
 function render() {
-    const q   = QUESTIONS[current];
-    const pct = ((current+1)/QUESTIONS.length*100).toFixed(0);
+    const q = QUESTIONS[current];
+    const pct = ((current + 1) / QUESTIONS.length * 100).toFixed(0);
 
-    document.getElementById('current-num').textContent   = current+1;
+    document.getElementById('current-num').textContent = current + 1;
     document.getElementById('question-text').textContent = q.teks_id;
-    document.getElementById('question-en').textContent   = q.teks_en;
-    document.getElementById('category-label').textContent= LABEL_MAP[q.subskala]||q.subskala;
-    document.getElementById('pct-label').textContent     = pct+'% selesai';
-    document.getElementById('progress-bar').style.width  = pct+'%';
-    document.getElementById('btn-prev').disabled         = current===0;
+    document.getElementById('question-en').textContent = q.teks_en;
+    document.getElementById('category-label').textContent = LABEL_MAP[q.subskala] || q.subskala;
+    document.getElementById('pct-label').textContent = pct + '% selesai';
+    document.getElementById('progress-bar').style.width = pct + '%';
 
-    document.querySelectorAll('.option-btn').forEach(btn=>{
+    document.getElementById('btn-prev').disabled = current === 0;
+
+    const btnNext = document.getElementById('btn-next');
+    btnNext.textContent = current === QUESTIONS.length - 1 ? 'Kirim Jawaban' : 'Next';
+
+    document.querySelectorAll('.option-btn').forEach(btn => {
         const val = parseInt(btn.dataset.value);
-        const sel = answers[q.id]===val;
+        const sel = answers[q.id] === val;
+
         btn.classList.toggle('border-blue-500', sel);
         btn.classList.toggle('bg-blue-50', sel);
         btn.classList.toggle('border-slate-100', !sel);
+
         btn.querySelector('.check-circle').classList.toggle('border-blue-500', sel);
         btn.querySelector('.check-dot').classList.toggle('hidden', !sel);
     });
@@ -147,32 +175,202 @@ function render() {
 function selectAnswer(val) {
     answers[QUESTIONS[current].id] = val;
     render();
-    setTimeout(()=>{
-        if (current < QUESTIONS.length-1) { current++; render(); }
-        else submitForm();
-    }, 300);
+
+    autosaveAnswer(QUESTIONS[current].id, val).then(expired => {
+        if (expired) {
+            return;
+        }
+
+        setTimeout(() => {
+            if (isCompletingMissing) {
+                const nextMissingIndex = QUESTIONS.findIndex(q => answers[q.id] === undefined);
+
+                if (nextMissingIndex !== -1) {
+                    current = nextMissingIndex;
+                    render();
+                    return;
+                }
+
+                isCompletingMissing = false;
+                current = QUESTIONS.length - 1;
+                render();
+                return;
+            }
+
+            if (current < QUESTIONS.length - 1) {
+                current++;
+                render();
+            }
+        }, 300);
+    });
 }
 
-function prevQuestion() { if(current>0){current--;render();} }
 
-function submitForm() {
-    const missing = QUESTIONS.filter(q=>answers[q.id]===undefined);
-    if (missing.length) {
-        current = QUESTIONS.indexOf(missing[0]);
+function nextQuestion() {
+    if (current < QUESTIONS.length - 1) {
+        current++;
         render();
-        alert('Masih ada '+missing.length+' pertanyaan yang belum dijawab.');
         return;
     }
-    const hidden = document.getElementById('hidden-answers');
-    hidden.innerHTML = '';
-    QUESTIONS.forEach(q=>{
-        const inp = document.createElement('input');
-        inp.type  = 'hidden';
-        inp.name  = 'answers['+q.id+']';
-        inp.value = answers[q.id];
-        hidden.appendChild(inp);
+
+    submitForm();
+}
+
+function prevQuestion() {
+    if (current > 0) {
+        current--;
+        render();
+    }
+}
+
+function confirmExit(event, url) {
+    event.preventDefault();
+
+    Swal.fire({
+        icon: 'info',
+        title: 'Keluar dari screening?',
+        text: 'Progress screening kamu akan tetap disimpan sementara.',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, keluar',
+        cancelButtonText: 'Lanjut screening',
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#64748b',
+        reverseButtons: true,
+        background: '#ffffff',
+        color: '#0f172a',
+        customClass: {
+            popup: 'rounded-3xl',
+            confirmButton: 'rounded-xl px-5 py-2',
+            cancelButton: 'rounded-xl px-5 py-2'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = url;
+        }
     });
-    document.getElementById('screening-form').submit();
+}
+
+function submitForm() {
+    const missing = QUESTIONS.filter(q => answers[q.id] === undefined);
+
+    if (missing.length) {
+    Swal.fire({
+        icon: 'warning',
+        title: 'Screening belum lengkap',
+        text: 'Masih ada ' + missing.length + ' pertanyaan yang belum dijawab. Kamu akan diarahkan ke pertanyaan yang belum terisi.',
+        confirmButtonText: 'Oke, lengkapi',
+        confirmButtonColor: '#2563eb',
+        background: '#ffffff',
+        color: '#0f172a',
+        customClass: {
+            popup: 'rounded-3xl',
+            confirmButton: 'rounded-xl px-5 py-2'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            isCompletingMissing = true;
+            current = QUESTIONS.indexOf(missing[0]);
+            render();
+        }
+    });
+
+    return;
+}
+
+    Swal.fire({
+        icon: 'question',
+        title: 'Kirim jawaban screening?',
+        text: 'Setelah dikirim, jawaban tidak bisa diubah.',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, kirim',
+        cancelButtonText: 'Cek lagi',
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#64748b',
+        reverseButtons: true,
+        background: '#ffffff',
+        color: '#0f172a',
+        customClass: {
+            popup: 'rounded-3xl',
+            confirmButton: 'rounded-xl px-5 py-2',
+            cancelButton: 'rounded-xl px-5 py-2'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const hidden = document.getElementById('hidden-answers');
+            hidden.innerHTML = '';
+
+            QUESTIONS.forEach(q => {
+                const inp = document.createElement('input');
+                inp.type = 'hidden';
+                inp.name = 'answers[' + q.id + ']';
+                inp.value = answers[q.id];
+                hidden.appendChild(inp);
+            });
+
+            document.getElementById('screening-form').submit();
+        }
+    });
+}
+
+function autosaveAnswer(questionNumber, value) {
+    return fetch(AUTOSAVE_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': CSRF_TOKEN,
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+            question_number: questionNumber,
+            value: value,
+        })
+    })
+    .then(async response => {
+        const result = await response.json().catch(() => null);
+
+        if (response.status === 419 || result?.expired) {
+            showExpiredModal(result?.message || 'Sesi telah berakhir, mohon ulangi screening.', result?.redirect || "{{ route('patient.dashboard') }}");
+            return true;
+        }
+
+        return false;
+    })
+    .catch(() => {
+        console.log('Autosave gagal. Jawaban tetap tersimpan sementara di browser.');
+        return false;
+    });
+}
+
+function showExpiredModal(message, redirectUrl) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4';
+    modal.innerHTML = `
+        <div class="bg-white rounded-3xl shadow-2xl max-w-xl w-full p-10 text-center">
+            <div class="w-28 h-28 mx-auto mb-6 rounded-full border-4 border-sky-400 flex items-center justify-center">
+                <span class="text-sky-400 text-6xl font-light">i</span>
+            </div>
+
+            <h2 class="text-3xl font-bold text-slate-900 mb-5">
+                Sesi telah berakhir
+            </h2>
+
+            <p class="text-slate-600 text-lg leading-relaxed mb-8">
+                ${message}
+            </p>
+
+            <button type="button"
+                    id="expired-ok-btn"
+                    class="px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition">
+                Mulai ulang screening
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    document.getElementById('expired-ok-btn').addEventListener('click', function () {
+        window.location.href = redirectUrl;
+    });
 }
 
 render();

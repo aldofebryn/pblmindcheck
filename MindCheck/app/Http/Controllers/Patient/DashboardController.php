@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\ChecksScreeningCooldown;
-use App\Models\{Patient, Screening};
+use App\Models\Patient;
+use App\Models\Screening;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -34,21 +36,36 @@ class DashboardController extends Controller
         $lastResult = $screenings->first()?->result;
 
         // Data chart tren (maks 10 sesi terbaru, dibalik agar kronologis)
-        $chartData = $screenings->take(10)->reverse()->values()->map(fn($s) => [
-            'tanggal'   => $s->selesai_at->format('d M'),
-            'depresi'   => $s->result?->skor_depresi   ?? 0,
-            'kecemasan' => $s->result?->skor_kecemasan ?? 0,
-            'stres'     => $s->result?->skor_stres     ?? 0,
-        ]);
+        $chartData = $screenings->take(10)->reverse()->values()->map(function ($s) {
+            return [
+                'tanggal'   => $s->selesai_at->format('d M'),
+                'depresi'   => $s->result?->skor_depresi   ?? 0,
+                'kecemasan' => $s->result?->skor_kecemasan ?? 0,
+                'stres'     => $s->result?->skor_stres     ?? 0,
+            ];
+        });
 
         // Status cooldown — dihitung dari controller, bukan flash session
         $screenCheck    = $this->canScreen($id_pasien);
         $canScreenNow   = $screenCheck['can'];
         $nextScreenDate = $screenCheck['next']?->format('d F Y');
 
+        $resumeMinutes = (int) Setting::getValue('screening_resume_minutes', 30);
+
+        $activeDraft = Screening::where('patient_id', $id_pasien)
+            ->whereNull('selesai_at')
+            ->latest()
+            ->first();
+
+        if ($activeDraft && $activeDraft->last_activity_at && $activeDraft->last_activity_at->lt(now()->subMinutes($resumeMinutes))) {
+            $activeDraft->answers()->delete();
+            $activeDraft->delete();
+            $activeDraft = null;
+        }
+
         return view('patient.dashboard', compact(
             'screenings', 'id_pasien', 'chartData', 'patient',
-            'lastResult', 'canScreenNow', 'nextScreenDate'
+            'lastResult', 'canScreenNow', 'nextScreenDate', 'activeDraft'
         ));
     }
 

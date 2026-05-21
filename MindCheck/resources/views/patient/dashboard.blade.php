@@ -8,6 +8,15 @@
 @section('content')
 <div class="w-full max-w-6xl mx-auto py-2 space-y-6">
 
+    @if(session('screening_expired'))
+    <div class="bg-red-50 border border-red-200 rounded-2xl px-5 py-4 flex items-center gap-3">
+        <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"/>
+        </svg>
+        <p class="font-medium text-red-800 text-sm">{{ session('screening_expired') }}</p>
+    </div>
+    @endif
+
     {{-- Flash: Welcome baru daftar --}}
     @if(session('success'))
     <div class="bg-emerald-50 border border-emerald-200 rounded-2xl px-5 py-4 flex items-center gap-3">
@@ -50,7 +59,7 @@
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                 </svg>
-                Mulai Skrining Baru
+                {{ $activeDraft ? 'Lanjutkan Skrining' : 'Mulai Skrining Baru' }}
             </a>
             @endif
         </div>
@@ -85,7 +94,7 @@
         <p class="font-bold text-slate-700 text-lg sm:text-xl mb-2">Belum ada riwayat skrining</p>
         <p class="text-slate-400 mb-6 text-sm sm:text-base">Mulai skrining pertama Anda untuk melihat hasil kondisi kesehatan mental Anda.</p>
         <a href="{{ route('screening') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition-colors shadow-sm">
-            Mulai Skrining Pertama
+            {{ $activeDraft ? 'Lanjutkan Skrining' : 'Mulai Skrining Pertama' }}
         </a>
     </div>
 
@@ -186,7 +195,7 @@
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                 </svg>
-                Mulai Skrining Baru
+                {{ $activeDraft ? 'Lanjutkan Skrining' : 'Mulai Skrining Baru' }}
             </a>
             @endif
         </div>

@@ -3,16 +3,33 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Concerns\GuardsAdmin;
+use App\Models\Setting;
+use Illuminate\Http\Request;
 
 class SettingsController extends Controller
 {
-    use GuardsAdmin;
-
     public function index()
     {
-        $this->guardAdmin();
-        $adminName = session('admin_name');
-        return view('admin.settings', compact('adminName'));
+        $screeningResumeMinutes = Setting::getValue('screening_resume_minutes', 30);
+
+        $adminName = session('admin_name') ?? session('admin_username') ?? 'Admin';
+
+        return view('admin.settings', compact('screeningResumeMinutes', 'adminName'));
+    }
+
+    public function update(Request $request)
+    {
+        $request->validate([
+            'screening_resume_minutes' => 'required|integer|min:1|max:1440',
+        ], [
+            'screening_resume_minutes.required' => 'Durasi jeda wajib diisi.',
+            'screening_resume_minutes.integer' => 'Durasi jeda harus berupa angka.',
+            'screening_resume_minutes.min' => 'Durasi jeda minimal 1 menit.',
+            'screening_resume_minutes.max' => 'Durasi jeda maksimal 1440 menit atau 24 jam.',
+        ]);
+
+        Setting::setValue('screening_resume_minutes', $request->screening_resume_minutes);
+
+        return back()->with('success', 'Pengaturan durasi jeda screening berhasil diperbarui.');
     }
 }

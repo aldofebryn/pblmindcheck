@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Patient;
 use App\Http\Controllers\Admin;
+use App\Http\Controllers\Admin\SettingsController;
 
 // ── Landing ──────────────────────────────────────────────────────
 Route::get('/', fn() => view('welcome', [
@@ -16,6 +17,7 @@ Route::post('/patient-logout',[Patient\AuthController::class, 'logout'])->name('
 
 Route::get('/screening',  [Patient\ScreeningController::class, 'show'])->name('screening');
 Route::post('/screening', [Patient\ScreeningController::class, 'submit'])->name('screening.submit');
+Route::post('/screening/autosave', [Patient\ScreeningController::class, 'autosave'])->name('screening.autosave');
 Route::get('/hasil/{screening}', [Patient\ScreeningController::class, 'hasil'])->name('hasil');
 
 Route::get('/dashboard',         [Patient\DashboardController::class, 'index'])->name('patient.dashboard');
@@ -34,7 +36,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [Admin\DashboardController::class, 'index'])->name('dashboard');
 
     // Pengaturan
-    Route::get('/pengaturan', [Admin\SettingsController::class, 'index'])->name('settings');
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
+    Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
 
     // Manajemen Pasien
     Route::resource('patients', Admin\PatientController::class);
