@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use App\Models\Patient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -44,12 +45,13 @@ class AuthController extends Controller
                 ->with('success', 'Akun berhasil dibuat. Selamat datang di MindCheck!');
         }
 
-        // Login
+        // ── Login ─────────────────────────────────────────────────
         $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
         ]);
 
+        // 1. Cek ke tabel patients (kolom username)
         $patient = Patient::where('username', $request->username)->first();
 
         if ($patient && $patient->password && Hash::check($request->password, $patient->password)) {
@@ -60,7 +62,16 @@ class AuthController extends Controller
             return redirect()->route('patient.dashboard');
         }
 
-        return back()->withErrors(['login' => 'Username atau password salah.'])->withInput();
+        // 2. Kalau tidak ketemu di patients, cek ke tabel admins (kolom email)
+        $admin = Admin::where('email', $request->username)->first();
+
+        if ($admin && Hash::check($request->password, $admin->password)) {
+            session(['admin_id' => $admin->id, 'admin_name' => $admin->name]);
+            return redirect()->route('admin.dashboard');
+        }
+
+        // 3. Keduanya tidak cocok
+        return back()->withErrors(['login' => 'Username/email atau password salah.'])->withInput();
     }
 
     // ── Logout ────────────────────────────────────────────────────

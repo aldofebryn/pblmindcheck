@@ -13,7 +13,7 @@ class AuthController extends Controller
     public function showLogin()
     {
         if (session('admin_id')) return redirect()->route('admin.dashboard');
-        return view('admin.login');
+        return view('patient.login');
     }
 
     // ── Proses login ──────────────────────────────────────────────
@@ -37,6 +37,6 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->session()->forget(['admin_id', 'admin_name']);
-        return redirect()->route('admin.login');
+        return redirect()->route('patient.login');
     }
 }
