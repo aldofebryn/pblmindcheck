@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Patient;
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\AdminLogController;
 
 // ── Landing ──────────────────────────────────────────────────────
 Route::get('/', fn() => view('welcome', [
@@ -38,6 +39,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Pengaturan
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
+    // Log Admin
+    Route::get('/logs', [AdminLogController::class, 'index'])->name('logs');
 
     // Manajemen Pasien
     Route::resource('patients', Admin\PatientController::class);

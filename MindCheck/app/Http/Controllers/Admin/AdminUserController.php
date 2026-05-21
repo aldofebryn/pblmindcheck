@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\GuardsAdmin;
 use App\Models\Admin;
+use App\Models\AdminLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -45,6 +46,8 @@ class AdminUserController extends Controller
             'status'   => $request->status ?? 1,
         ]);
 
+        AdminLog::record('Menambah akun admin', 'Admin', 'Admin menambahkan akun admin baru.');
+
         return redirect()->route('admin.admins.index')
             ->with('success', 'Admin berhasil ditambahkan.');
     }
@@ -75,6 +78,8 @@ class AdminUserController extends Controller
             'status' => $request->status,
         ]);
 
+        AdminLog::record('Mengubah akun admin', 'Admin', 'Admin mengubah data akun admin.');
+
         return redirect()->route('admin.admins.index')
             ->with('success', 'Admin berhasil diperbarui.');
     }
@@ -84,6 +89,7 @@ class AdminUserController extends Controller
     {
         $this->guardAdmin();
         Admin::findOrFail($id)->delete();
+        AdminLog::record('Menghapus akun admin', 'Admin', 'Admin menghapus akun admin.');
         return back()->with('success', 'Admin berhasil dihapus.');
     }
 

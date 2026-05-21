@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\GuardsAdmin;
+use App\Models\AdminLog;
 use App\Models\Question;
 use App\Http\Requests\QuestionRequest;
 use Illuminate\Http\Request;
@@ -44,6 +45,7 @@ class QuestionController extends Controller
     {
         $this->guardAdmin();
         Question::create($request->validated());
+        AdminLog::record('Menambah pertanyaan', 'Pertanyaan', 'Admin menambahkan pertanyaan baru.');
         return redirect()->route('admin.questions.index')
             ->with('success', 'Pertanyaan berhasil ditambahkan.');
     }
@@ -60,6 +62,7 @@ class QuestionController extends Controller
     {
         $this->guardAdmin();
         $question->update($request->validated());
+        AdminLog::record('Mengubah pertanyaan', 'Pertanyaan', 'Admin mengubah data pertanyaan.');
         return redirect()->route('admin.questions.index')
             ->with('success', 'Pertanyaan berhasil diperbarui.');
     }
@@ -69,6 +72,7 @@ class QuestionController extends Controller
     {
         $this->guardAdmin();
         $question->delete();
+        AdminLog::record('Menghapus pertanyaan', 'Pertanyaan', 'Admin menghapus pertanyaan.');
         return redirect()->route('admin.questions.index')
             ->with('success', 'Pertanyaan dipindahkan ke tong sampah.');
     }

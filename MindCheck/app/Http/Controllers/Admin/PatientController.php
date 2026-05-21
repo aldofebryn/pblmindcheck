@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\GuardsAdmin;
 use App\Models\Patient;
+use App\Models\AdminLog;
 use App\Models\Screening;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -73,6 +74,12 @@ class PatientController extends Controller
             'admin_notes' => $request->admin_notes,
         ]);
 
+        AdminLog::record(
+            'Menambah data pasien',
+            'Pasien',
+            'Admin menambahkan pasien baru: ' . $request->username
+        );
+
         return redirect()->route('admin.patients.index')
             ->with('success', 'Pasien berhasil ditambahkan');
     }
@@ -131,6 +138,10 @@ class PatientController extends Controller
             'admin_notes' => 'nullable|string',
         ]);
 
+        $oldUsername = $patient->username;
+        $oldUmur = $patient->umur;
+        $oldStatus = $patient->status_pekerjaan;
+
         $data = [
             'username' => $request->username,
             'umur' => $request->umur,
@@ -145,6 +156,14 @@ class PatientController extends Controller
 
         $patient->update($data);
 
+        AdminLog::record(
+            'Mengubah data pasien',
+            'Pasien',
+            'Admin mengubah pasien ' . $oldUsername .
+            ' | Umur: ' . $oldUmur . ' → ' . $patient->umur .
+            ' | Status: ' . $oldStatus . ' → ' . $patient->status_pekerjaan
+        );
+
         return redirect()->route('admin.patients.index')
             ->with('success', 'Data Pasien berhasil diperbarui');
     }
@@ -156,7 +175,16 @@ class PatientController extends Controller
     {
         $this->guardAdmin();
 
-        Patient::findOrFail($patient_id)->delete();
+        $patient = Patient::findOrFail($patient_id);
+        $patientName = $patient->username;
+
+        $patient->delete();
+
+        AdminLog::record(
+            'Menghapus data pasien',
+            'Pasien',
+            'Admin menghapus data pasien: ' . $patientName
+        );
 
         return redirect()->route('admin.patients.index')
             ->with('success', 'Pasien beserta seluruh riwayatnya berhasil dihapus');

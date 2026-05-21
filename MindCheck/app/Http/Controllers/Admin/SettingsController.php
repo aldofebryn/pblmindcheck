@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use App\Models\AdminLog;
 use Illuminate\Http\Request;
 
 class SettingsController extends Controller
@@ -29,6 +30,12 @@ class SettingsController extends Controller
         ]);
 
         Setting::setValue('screening_resume_minutes', $request->screening_resume_minutes);
+
+        AdminLog::record(
+            'Mengubah pengaturan',
+            'Pengaturan',
+            'Mengubah durasi jeda screening menjadi ' . $request->screening_resume_minutes . ' menit.'
+        );
 
         return back()->with('success', 'Pengaturan durasi jeda screening berhasil diperbarui.');
     }

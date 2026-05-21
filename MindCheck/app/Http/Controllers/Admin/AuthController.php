@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\AdminLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -27,6 +28,7 @@ class AuthController extends Controller
         $admin = Admin::where('email', $request->email)->first();
         if ($admin && Hash::check($request->password, $admin->password)) {
             session(['admin_id' => $admin->id, 'admin_name' => $admin->name]);
+            AdminLog::record('Login admin', 'Login', 'Admin berhasil masuk ke sistem.');
             return redirect()->route('admin.dashboard');
         }
 
