@@ -16,7 +16,7 @@
             <p class="text-slate-500 text-sm mt-2">{{ $screening->selesai_at?->format('d M Y, H:i') }} WIB</p>
         </div>
         <div class="flex flex-col items-end gap-2">
-            <div class="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-blue-700 font-semibold px-4 py-2.5 rounded-xl text-sm">
+            <div class="inline-flex items-center gap-2 bg-yellow-50 border border-yellow-200 text-yellow-700 font-semibold px-4 py-2.5 rounded-xl text-sm">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
