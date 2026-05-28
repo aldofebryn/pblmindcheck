@@ -12,9 +12,10 @@ Route::get('/', fn() => view('welcome', [
 ]))->name('landing');
 
 // ── Pasien ───────────────────────────────────────────────────────
-Route::get('/patient-login',  [Patient\AuthController::class, 'showLogin'])->name('patient.login');
-Route::post('/patient-login', [Patient\AuthController::class, 'process'])->name('patient.login.process')->middleware('throttle:10,1');
-Route::post('/patient-logout',[Patient\AuthController::class, 'logout'])->name('patient.logout');
+Route::get('/patient-login',    [Patient\AuthController::class, 'showLogin'])->name('patient.login');
+Route::get('/patient-register', [Patient\AuthController::class, 'showRegister'])->name('patient.register');
+Route::post('/patient-login',   [Patient\AuthController::class, 'process'])->name('patient.login.process')->middleware('throttle:10,1');
+Route::post('/patient-logout',  [Patient\AuthController::class, 'logout'])->name('patient.logout');
 
 Route::get('/screening',  [Patient\ScreeningController::class, 'show'])->name('screening');
 Route::post('/screening', [Patient\ScreeningController::class, 'submit'])->name('screening.submit');
@@ -46,13 +47,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Manajemen Pasien
     Route::resource('patients', Admin\PatientController::class);
 
-    // Manajemen Pertanyaan — trash HARUS sebelum resource agar tidak ditangkap sebagai {question}
+    // Manajemen Pertanyaan
     Route::get('questions/trash',            [Admin\QuestionController::class, 'trash'])->name('questions.trash');
     Route::patch('questions/{id}/restore',   [Admin\QuestionController::class, 'restore'])->name('questions.restore');
     Route::delete('questions/{id}/force',    [Admin\QuestionController::class, 'forceDelete'])->name('questions.force');
     Route::resource('questions', Admin\QuestionController::class)->except(['show']);
 
-    // Manajemen Akun Admin — trash HARUS sebelum resource
+    // Manajemen Akun Admin
     Route::get('admins/trash',               [Admin\AdminUserController::class, 'trash'])->name('admins.trash');
     Route::patch('admins/{id}/restore',      [Admin\AdminUserController::class, 'restore'])->name('admins.restore');
     Route::delete('admins/{id}/force',       [Admin\AdminUserController::class, 'forceDelete'])->name('admins.force');
