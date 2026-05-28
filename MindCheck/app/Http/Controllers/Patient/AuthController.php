@@ -10,10 +10,16 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // ── Tampilkan halaman login/register ──────────────────────────
+    // ── Tampilkan halaman login ───────────────────────────────────
     public function showLogin()
     {
         return view('patient.login');
+    }
+
+    // ── Tampilkan halaman register ────────────────────────────────
+    public function showRegister()
+    {
+        return view('patient.register');
     }
 
     // ── Proses login atau register ────────────────────────────────
@@ -23,10 +29,10 @@ class AuthController extends Controller
 
         if ($request->aksi === 'register') {
             $request->validate([
-                'username'         => 'required|string|max:255|unique:patients,username',
-                'password'         => 'required|string|min:6',
-                'umur'             => 'required|integer|min:1',
-                'status_pekerjaan' => 'required|string|max:255',
+                'username'              => 'required|string|max:255|unique:patients,username',
+                'password'              => 'required|string|min:6|confirmed',
+                'umur'                  => 'required|integer|min:1',
+                'status_pekerjaan'      => 'required|string|max:255',
             ]);
 
             $patient = Patient::create([
@@ -36,11 +42,7 @@ class AuthController extends Controller
                 'status_pekerjaan' => $request->status_pekerjaan,
             ]);
 
-            session([
-                'patient_id' => $patient->id,
-                'patient_name' => $patient->username,
-            ]);
-
+            session(['patient_id' => $patient->id]);
             return redirect()->route('patient.dashboard')
                 ->with('success', 'Akun berhasil dibuat. Selamat datang di MindCheck!');
         }
@@ -55,10 +57,7 @@ class AuthController extends Controller
         $patient = Patient::where('username', $request->username)->first();
 
         if ($patient && $patient->password && Hash::check($request->password, $patient->password)) {
-            session([
-                'patient_id' => $patient->id,
-                'patient_name' => $patient->username,
-            ]);
+            session(['patient_id' => $patient->id]);
             return redirect()->route('patient.dashboard');
         }
 
@@ -77,7 +76,7 @@ class AuthController extends Controller
     // ── Logout ────────────────────────────────────────────────────
     public function logout(Request $request)
     {
-        $request->session()->forget(['patient_id', 'patient_name']);
+        $request->session()->forget('patient_id');
         return redirect()->route('landing');
     }
 }

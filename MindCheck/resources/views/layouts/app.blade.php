@@ -23,13 +23,8 @@
             <span class="font-bold text-slate-900 text-lg">MindCheck</span>
         </a>
 
-        {{-- Menu --}}
-        <div class="flex items-center gap-3">
-            <a href="{{ route('patient.login') }}"
-               class="px-6 py-3 text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition font-semibold text-lg">
-                Mulai Skrining
-            </a>
-        </div>
+        {{-- Menu kosong, tombol ada di hero --}}
+        <div></div>
     </div>
 </nav>
 
@@ -38,18 +33,9 @@
     @yield('content')
 </main>
 
-<footer class="border-t border-slate-100 py-10 mt-16">
-    <div class="w-full px-6 lg:px-14 xl:px-24 text-center text-slate-400 space-y-1.5">
-        <p>
-            MindCheck menggunakan instrumen
-            <strong class="text-slate-500">DASS-21</strong>
-            (Lovibond &amp; Lovibond, 1995) dengan metode
-            <strong class="text-slate-500">Decision Tree</strong>.
-        </p>
-        <p class="text-sm">
-            Bukan pengganti diagnosis profesional · Darurat:
-            <strong class="text-slate-600">SEJIWA 119 ext 8</strong> (24 jam)
-        </p>
+<footer class="border-t border-slate-100 py-6 mt-16">
+    <div class="w-full px-6 lg:px-14 xl:px-24 text-center text-slate-400">
+        <p class="text-sm">© {{ date('Y') }} MindCheck · Sistem Skrining Kesehatan Mental</p>
     </div>
 </footer>
 
