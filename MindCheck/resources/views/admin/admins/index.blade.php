@@ -119,7 +119,7 @@
                                 <button type="button"
                                         onclick="openSelfDeleteWarningModal()"
                                         class="p-2 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                        title="Hapus (Akun Anda)">
+                                        title="Akun sedang aktif digunakan, tidak dapat dihapus">
                                     <svg class="w-4 h-4 opacity-75"
                                          fill="none"
                                          viewBox="0 0 24 24"
