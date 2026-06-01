@@ -61,6 +61,8 @@
                     <div>
                         <label class="block text-xs font-semibold text-indigo-100 mb-1.5 uppercase tracking-wide">Username</label>
                         <input type="text" name="username" value="{{ old('username') }}"
+                               onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122)"
+                               oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')"
                                placeholder="Masukkan username"
                                class="w-full px-4 py-3 rounded-xl bg-white/15 backdrop-blur-sm border border-white/25 text-white placeholder-indigo-300 focus:outline-none focus:border-white focus:bg-white/20 transition-all text-sm"
                                required autofocus>
@@ -72,6 +74,8 @@
                         <div>
                             <label class="block text-xs font-semibold text-indigo-100 mb-1.5 uppercase tracking-wide">Umur</label>
                             <input type="number" name="umur" value="{{ old('umur') }}" min="1"
+                                   onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                    placeholder="Usia"
                                    class="w-full px-4 py-3 rounded-xl bg-white/15 backdrop-blur-sm border border-white/25 text-white placeholder-indigo-300 focus:outline-none focus:border-white focus:bg-white/20 transition-all text-sm"
                                    required>

@@ -183,10 +183,51 @@ class PatientController extends Controller
         AdminLog::record(
             'Menghapus data pasien',
             'Pasien',
-            'Admin menghapus data pasien: ' . $patientName
+            'Admin memindahkan data pasien ke tong sampah: ' . $patientName
         );
 
         return redirect()->route('admin.patients.index')
-            ->with('success', 'Pasien beserta seluruh riwayatnya berhasil dihapus');
+            ->with('success', 'Pasien berhasil dipindahkan ke tong sampah');
+    }
+
+    public function trash()
+    {
+        $this->guardAdmin();
+        $patients = Patient::onlyTrashed()
+            ->withCount(['screenings' => fn($q) => $q->whereNotNull('selesai_at')])
+            ->orderByDesc('deleted_at')
+            ->get();
+        return view('admin.patients.trash', compact('patients'));
+    }
+
+    public function restore($id)
+    {
+        $this->guardAdmin();
+        $patient = Patient::onlyTrashed()->findOrFail($id);
+        $patient->restore();
+
+        AdminLog::record(
+            'Memulihkan data pasien',
+            'Pasien',
+            'Admin memulihkan data pasien: ' . $patient->username
+        );
+
+        return back()->with('success', 'Pasien berhasil dipulihkan.');
+    }
+
+    public function forceDelete($id)
+    {
+        $this->guardAdmin();
+        $patient = Patient::onlyTrashed()->findOrFail($id);
+        $patientName = $patient->username;
+        $patient->forceDelete();
+
+        AdminLog::record(
+            'Hapus permanen pasien',
+            'Pasien',
+            'Admin menghapus secara permanen data pasien: ' . $patientName
+        );
+
+        return back()->with('success', 'Pasien beserta seluruh riwayatnya berhasil dihapus secara permanen.');
     }
 }

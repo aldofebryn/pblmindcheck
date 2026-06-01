@@ -53,5 +53,8 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->command->info('✓ Admin default + 21 pertanyaan DASS-21 berhasil di-seed.');
+
+        // Seed 50 realistic patient profiles and weekly test history
+        $this->call(PatientScreeningSeeder::class);
     }
 }

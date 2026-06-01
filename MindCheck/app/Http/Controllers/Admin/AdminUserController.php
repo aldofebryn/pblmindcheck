@@ -88,6 +88,11 @@ class AdminUserController extends Controller
     public function destroy($id)
     {
         $this->guardAdmin();
+
+        if ($id == session('admin_id')) {
+            return back()->with('error', 'Anda tidak dapat menghapus akun admin yang sedang aktif digunakan.');
+        }
+
         Admin::findOrFail($id)->delete();
         AdminLog::record('Menghapus akun admin', 'Admin', 'Admin menghapus akun admin.');
         return back()->with('success', 'Admin berhasil dihapus.');

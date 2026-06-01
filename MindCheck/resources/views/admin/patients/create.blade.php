@@ -22,6 +22,8 @@
                 <div>
                     <label for="username" class="block text-sm font-bold text-slate-700 mb-2">Username</label>
                     <input type="text" name="username" id="username" value="{{ old('username') }}"
+                           onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122)"
+                           oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')"
                            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none" 
                            placeholder="">
                     @error('username') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
@@ -38,6 +40,8 @@
                 <div>
                     <label for="umur" class="block text-sm font-bold text-slate-700 mb-2">Umur</label>
                     <input type="number" name="umur" id="umur" value="{{ old('umur') }}" min="1"
+                           onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none" 
                            placeholder="">
                     @error('umur') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
@@ -60,6 +64,8 @@
             <div>
                 <label for="alias" class="block text-sm font-bold text-slate-700 mb-2">Alias / Nama Panggilan (Opsional)</label>
                 <input type="text" name="alias" id="alias" value="{{ old('alias') }}"
+                       onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode === 32"
+                       oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"
                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none" 
                        placeholder="">
                 @error('alias') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror

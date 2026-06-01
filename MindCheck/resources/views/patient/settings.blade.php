@@ -37,23 +37,18 @@
 
             <div class="grid sm:grid-cols-2 gap-6 mb-8">
                 <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">ID Pasien</label>
-                    <input type="text" value="{{ $patient->id }}" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-mono outline-none" readonly>
-                    <p class="text-xs text-slate-400 mt-1">ID tidak dapat diubah.</p>
-                </div>
-                <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Nama Panggilan (Alias)</label>
-                    <input type="text" name="alias" value="{{ old('alias', $patient->alias) }}" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none" placeholder="Opsional">
+                    <input type="text" name="alias" value="{{ old('alias', $patient->alias) }}" onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode === 32" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none" placeholder="Opsional">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Username</label>
-                    <input type="text" name="username" value="{{ old('username', $patient->username) }}" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none" required>
+                    <input type="text" name="username" value="{{ old('username', $patient->username) }}" onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122)" oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none" required>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Umur</label>
-                    <input type="number" name="umur" min="1" value="{{ old('umur', $patient->umur) }}" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none" required>
+                    <input type="number" name="umur" min="1" value="{{ old('umur', $patient->umur) }}" onkeypress="return event.charCode >= 48 && event.charCode <= 57" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none" required>
                 </div>
-                <div class="sm:col-span-2">
+                <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Status Pekerjaan</label>
                     <div class="relative">
                         <select name="status_pekerjaan" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none appearance-none bg-white cursor-pointer text-slate-700 font-medium" required>

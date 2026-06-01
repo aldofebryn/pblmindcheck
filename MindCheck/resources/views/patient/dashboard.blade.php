@@ -34,12 +34,9 @@
             {{-- Kiri: Sapaan --}}
             <div>
                 <p class="text-sm font-semibold text-blue-600 uppercase tracking-widest mb-1">Selamat Datang</p>
-                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-1">
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">
                     Halo, {{ $patient->alias ?? $patient->username }}!
                 </h1>
-                <p class="text-slate-400 text-sm">
-                    ID Pasien: <span class="font-mono bg-slate-100 px-2 py-0.5 rounded-lg text-slate-600">{{ $id_pasien }}</span>
-                </p>
             </div>
 
             {{-- Kanan: Tombol CTA / Status Cooldown --}}

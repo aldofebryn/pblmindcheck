@@ -41,10 +41,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
 
+    // Informasi
+    Route::get('/info', [Admin\InfoController::class, 'index'])->name('info');
+
     // Log Admin
     Route::get('/logs', [AdminLogController::class, 'index'])->name('logs');
 
     // Manajemen Pasien
+    Route::get('patients/trash',            [Admin\PatientController::class, 'trash'])->name('patients.trash');
+    Route::patch('patients/{id}/restore',   [Admin\PatientController::class, 'restore'])->name('patients.restore');
+    Route::delete('patients/{id}/force',    [Admin\PatientController::class, 'forceDelete'])->name('patients.force');
     Route::resource('patients', Admin\PatientController::class);
 
     // Manajemen Pertanyaan

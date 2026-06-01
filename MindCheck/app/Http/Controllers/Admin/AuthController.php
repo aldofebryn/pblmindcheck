@@ -25,11 +25,16 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $admin = Admin::where('email', $request->email)->first();
-        if ($admin && Hash::check($request->password, $admin->password)) {
-            session(['admin_id' => $admin->id, 'admin_name' => $admin->name]);
-            AdminLog::record('Login admin', 'Login', 'Admin berhasil masuk ke sistem.');
-            return redirect()->route('admin.dashboard');
+        $admin = Admin::withTrashed()->where('email', $request->email)->first();
+        if ($admin) {
+            if ($admin->trashed()) {
+                return back()->withErrors(['email' => 'Akun admin Anda sedang dinonaktifkan/berada di tong sampah.'])->withInput();
+            }
+            if (Hash::check($request->password, $admin->password)) {
+                session(['admin_id' => $admin->id, 'admin_name' => $admin->name]);
+                AdminLog::record('Login admin', 'Login', 'Admin berhasil masuk ke sistem.');
+                return redirect()->route('admin.dashboard');
+            }
         }
 
         return back()->withErrors(['email' => 'Email atau kata sandi salah.'])->withInput();
