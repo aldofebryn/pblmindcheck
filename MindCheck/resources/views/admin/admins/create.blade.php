@@ -18,7 +18,12 @@
 
             <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Lengkap</label>
-                <input name="name" type="text" value="{{ old('name') }}" required
+                <input name="name"
+                       type="text"
+                       value="{{ old('name') }}"
+                       required
+                       pattern="[A-Za-zÀ-ÿ\s]+"
+                       onkeypress="return /[A-Za-zÀ-ÿ\s]/.test(event.key)"
                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-sm"
                        placeholder="Contoh: Budi Santoso">
                 @error('name')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror

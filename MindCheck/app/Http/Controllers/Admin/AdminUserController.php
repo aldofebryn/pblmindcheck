@@ -34,7 +34,7 @@ class AdminUserController extends Controller
         $this->guardAdmin();
 
         $request->validate([
-            'name'     => 'required',
+            'name'     => ['required', 'regex:/^[A-Za-z\s]+$/'],
             'email'    => 'required|email|unique:admins,email',
             'password' => 'required|min:6',
         ]);
