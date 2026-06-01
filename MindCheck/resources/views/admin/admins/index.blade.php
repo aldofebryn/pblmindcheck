@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title','Manajemen Admin')
+@section('title','Daftar Admin')
 
 @section('content')
 <div class="w-full">
@@ -200,7 +200,7 @@
         {{-- Judul & Isi --}}
         <h3 class="text-xl font-bold text-slate-800 text-center mb-2">Tindakan Ditolak</h3>
         <div class="text-slate-500 text-sm text-center mb-6 leading-relaxed">
-            Anda tidak dapat menghapus akun admin yang <strong>sedang aktif digunakan</strong> untuk login saat ini.
+            Anda tidak dapat menghapus akun admin yang <strong>sedang aktif digunakan</strong> untuk login saat ini. Silahkan nonaktif kan akun ini terlebih dahulu, lalu coba hapus kembali.
         </div>
 
         {{-- Tombol Tutup --}}
