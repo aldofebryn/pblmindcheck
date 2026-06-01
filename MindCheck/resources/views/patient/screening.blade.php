@@ -9,61 +9,61 @@
 </head>
 <body class="bg-slate-50 antialiased min-h-screen flex flex-col">
 
-<header class="bg-white rounded-b-3xl shadow-sm border-b border-slate-100 sticky top-0 z-40">
-    <div class="w-full px-8 lg:px-16 py-5 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-            <span class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-100">
-                <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                </svg>
+<header class="bg-white rounded-b-2xl shadow-sm border-b border-slate-100 sticky top-0 z-40">
+    <div class="w-full px-4 lg:px-6 py-2.5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <img
+                src="{{ asset('logo1.png') }}"
+                alt="MindCheck"
+                class="h-10 w-auto">
+
+            <span class="font-black text-slate-900 text-lg">
+                Skrining DASS-21
             </span>
-            <span class="font-black text-slate-900 text-2xl">Skrining DASS-21</span>
         </div>
 
         <a href="{{ route('patient.dashboard') }}"
            onclick="confirmExit(event, this.href)"
-           class="flex items-center gap-2 px-5 py-3 text-slate-500 hover:text-blue-600 text-base font-bold rounded-xl hover:bg-slate-100 transition">
+           class="flex items-center gap-2 px-4 py-2 text-slate-500 hover:text-blue-600 text-sm font-bold rounded-lg hover:bg-slate-100 transition">
             Keluar
         </a>
     </div>
 </header>
 
 <main class="flex-1" id="app">
-    <div class="max-w-[1450px] mx-auto px-8 lg:px-16 py-10">
+    <div class="max-w-[960px] mx-auto px-4 lg:px-6 py-4">
         <form method="POST" action="{{ route('screening.submit') }}" id="screening-form">
             @csrf
             <div id="hidden-answers"></div>
 
-            <div class="pt-6 pb-10">
-                <div class="flex items-end justify-between mb-5">
+            <div class="pt-2 pb-4">
+                <div class="flex items-end justify-between mb-3">
                     <div>
-                        <span id="current-num" class="font-black text-blue-600 text-6xl">1</span>
-                        <span class="text-slate-400 font-bold ml-3 text-2xl">/ {{ $questions->count() }}</span>
+                        <span id="current-num" class="font-black text-blue-600 text-4xl">1</span>
+                        <span class="text-slate-400 font-bold ml-1.5 text-lg">/ {{ $questions->count() }}</span>
                     </div>
 
                     <div class="text-right">
-                        <span id="category-label" class="text-2xl font-black text-blue-600 uppercase tracking-wider"></span>
-                        <span id="pct-label" class="block text-base text-slate-500 mt-2"></span>
+                        <span id="category-label" class="text-base font-black text-blue-600 uppercase tracking-wider"></span>
+                        <span id="pct-label" class="block text-xs text-slate-500 mt-0.5"></span>
                     </div>
                 </div>
 
-                <div class="h-3 bg-slate-200 rounded-full overflow-hidden">
+                <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
                     <div id="progress-bar"
                          class="h-full bg-blue-600 rounded-full transition-all duration-500"
                          style="width:0%"></div>
                 </div>
             </div>
 
-            <div id="question-card" class="bg-white rounded-3xl shadow-lg shadow-slate-200/70 border border-slate-100 p-10 md:p-12 mb-8 flex items-center justify-between gap-10">
+            <div id="question-card" class="bg-white rounded-2xl shadow-md shadow-slate-200/50 border border-slate-100 p-5 mb-4 flex items-center justify-between gap-4">
                 <div>
-                    <p id="question-en" class="text-slate-400 italic font-bold text-lg mb-7"></p>
-
-                    <h2 id="question-text" class="text-3xl md:text-4xl font-black text-slate-950 leading-snug"></h2>
+                    <p id="question-en" class="text-slate-400 italic font-semibold text-xs mb-2"></p>
+                    <h2 id="question-text" class="text-xl md:text-2xl font-black text-slate-950 leading-snug"></h2>
                 </div>
 
-                <div class="hidden lg:flex w-80 justify-center">
-                    <svg viewBox="0 0 360 160" class="w-80 h-36">
+                <div class="hidden lg:flex w-40 justify-center">
+                    <svg viewBox="0 0 360 160" class="w-64 h-28">
                         <circle cx="300" cy="34" r="18" fill="#FBBF24"/>
                         <ellipse cx="165" cy="120" rx="125" ry="8" fill="#BFDBFE"/>
 
@@ -89,7 +89,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12" id="options">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6" id="options">
                 @php
                 $opsi = [
                     [0,'Tidak pernah',   'Tidak berlaku sama sekali untuk saya', 'green'],
@@ -100,45 +100,45 @@
                 @endphp
 
                 @foreach($opsi as [$val,$label,$desc,$icon])
-                <label class="option-btn group flex items-center justify-between bg-white border border-slate-100 rounded-3xl px-8 py-7 cursor-pointer hover:border-blue-300 hover:shadow-lg transition-all"
+                <label class="option-btn group flex items-center justify-between bg-white border border-slate-100 rounded-2xl px-5 py-4 cursor-pointer hover:border-blue-300 hover:shadow-md transition-all"
                        data-value="{{ $val }}"
                        onclick="selectAnswer({{ $val }})">
 
-                    <div class="flex items-center gap-7">
-                        <div class="check-circle w-7 h-7 rounded-full border-2 border-slate-300 flex items-center justify-center">
-                            <div class="check-dot hidden w-3.5 h-3.5 rounded-full bg-blue-600"></div>
+                    <div class="flex items-center gap-4">
+                        <div class="check-circle w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center flex-shrink-0">
+                            <div class="check-dot hidden w-2.5 h-2.5 rounded-full bg-blue-600"></div>
                         </div>
 
                         <div>
-                            <div class="font-black text-xl text-slate-900 group-hover:text-blue-700">
+                            <div class="font-black text-base text-slate-900 group-hover:text-blue-700">
                                 {{ $label }}
                             </div>
-                            <div class="text-base text-slate-500 mt-2">
+                            <div class="text-xs text-slate-500 mt-0.5">
                                 {{ $desc }}
                             </div>
                         </div>
                     </div>
 
-                    <div class="hidden md:flex w-14 h-14 rounded-2xl items-center justify-center
+                    <div class="hidden md:flex w-10 h-10 rounded-xl items-center justify-center flex-shrink-0
                         {{ $icon === 'green' ? 'bg-emerald-100 text-emerald-500' : '' }}
                         {{ $icon === 'yellow' ? 'bg-amber-100 text-amber-500' : '' }}
                         {{ $icon === 'orange' ? 'bg-orange-100 text-orange-500' : '' }}
                         {{ $icon === 'rose' ? 'bg-rose-100 text-rose-500' : '' }}">
 
                         @if($icon === 'green')
-                            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                 <circle cx="12" cy="12" r="9"/>
                                 <path stroke-linecap="round" d="M8.5 10h.01M15.5 10h.01"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M8.5 14c1.8 2 5.2 2 7 0"/>
                             </svg>
                         @elseif($icon === 'yellow')
-                            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                 <rect x="5" y="6" width="14" height="13" rx="2"/>
                                 <path stroke-linecap="round" d="M8 4v4M16 4v4M5 10h14"/>
                                 <path stroke-linecap="round" d="M9 14h.01M12 14h.01M15 14h.01"/>
                             </svg>
                         @elseif($icon === 'orange')
-                            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 19h14"/>
                                 <rect x="6" y="13" width="3" height="6" rx="1"/>
                                 <rect x="11" y="10" width="3" height="9" rx="1"/>
@@ -146,7 +146,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l4-3 4 2 4-5"/>
                             </svg>
                         @elseif($icon === 'rose')
-                            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                 <circle cx="12" cy="12" r="9"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 3"/>
                             </svg>
@@ -156,19 +156,19 @@
                 @endforeach
             </div>
 
-            <div class="flex items-center justify-between mt-10">
+            <div class="flex items-center justify-between mt-6">
                 <button type="button" onclick="prevQuestion()" id="btn-prev"
-                        class="flex items-center gap-4 px-9 py-5 rounded-2xl border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white disabled:opacity-0 transition text-xl font-black">
-                    <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                       class="flex items-center px-5 py-2.5 rounded-xl border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white disabled:opacity-0 transition text-sm font-semibold">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M15 19l-7-7 7-7"/>
                     </svg>
                     Kembali
                 </button>
 
-                <div class="flex items-center gap-4 text-slate-500 font-medium text-xl">
-                    <div class="w-10 h-10 rounded-2xl bg-rose-100 text-rose-500 flex items-center justify-center">
-                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <div class="flex items-center gap-2 text-slate-500 font-medium text-sm">
+                    <div class="w-7 h-7 rounded-lg bg-rose-100 text-rose-500 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                   d="M12 21s7-3.5 7-10V5l-7-3-7 3v6c0 6.5 7 10 7 10z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-5"/>
@@ -178,7 +178,7 @@
                 </div>
 
                 <button type="button" onclick="nextQuestion()" id="btn-next"
-                        class="px-12 py-5 rounded-2xl bg-blue-600 text-white text-xl font-black hover:bg-blue-700 shadow-lg shadow-blue-200 transition">
+                        class="px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 shadow-md shadow-blue-200 transition">
                     Next
                 </button>
             </div>
@@ -418,7 +418,7 @@ function showExpiredModal(message, redirectUrl) {
             </h2>
 
             <p class="text-slate-600 text-lg leading-relaxed mb-8">
-                ${message}
+                \${message}
             </p>
 
             <button type="button"
