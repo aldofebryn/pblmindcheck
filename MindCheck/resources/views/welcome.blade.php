@@ -3,46 +3,43 @@
 
 @push('head')
 <style>
-/* ── Floating animation untuk ilustrasi ── */
-@keyframes floatUp {
-    0%,100% { transform: translateY(0px); }
-    50%      { transform: translateY(-10px); }
-}
 @keyframes fadeInUp {
     from { opacity:0; transform:translateY(20px); }
     to   { opacity:1; transform:translateY(0); }
 }
-@keyframes pulseRing {
-    0%   { transform: scale(1);   opacity:.6; }
-    100% { transform: scale(1.5); opacity:0; }
-}
-@keyframes countUp {
-    from { opacity:0; transform:translateY(8px); }
-    to   { opacity:1; transform:translateY(0); }
-}
-@keyframes barGrow {
-    from { width: 0%; }
-}
+@keyframes float0 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes float1 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+@keyframes float2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+@keyframes barGrow { from { width: 0%; } }
 
-.hero-visual { animation: floatUp 4s ease-in-out infinite; }
 .anim-1 { animation: fadeInUp .6s ease both; animation-delay:.1s; }
 .anim-2 { animation: fadeInUp .6s ease both; animation-delay:.25s; }
 .anim-3 { animation: fadeInUp .6s ease both; animation-delay:.4s; }
 .anim-4 { animation: fadeInUp .6s ease both; animation-delay:.55s; }
-
-.pulse-ring {
-    position:absolute; inset:0; border-radius:50%;
-    border: 2px solid #3b82f6;
-    animation: pulseRing 2s ease-out infinite;
-}
-.pulse-ring-2 {
-    position:absolute; inset:0; border-radius:50%;
-    border: 2px solid #3b82f6;
-    animation: pulseRing 2s ease-out infinite;
-    animation-delay: .6s;
-}
-
 .bar-anim { animation: barGrow 1.2s ease both; animation-delay: .8s; }
+
+/* Breathing Orb */
+.orb-ring {
+    position: absolute; border-radius: 50%;
+    transition: width 4s cubic-bezier(.4,0,.2,1),
+                height 4s cubic-bezier(.4,0,.2,1),
+                background 4s ease, border-color 4s ease;
+}
+.orb-core {
+    position: relative; z-index: 2; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: width 4s cubic-bezier(.4,0,.2,1),
+                height 4s cubic-bezier(.4,0,.2,1),
+                background 4s ease, box-shadow 4s ease;
+}
+.orb-label {
+    position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%);
+    font-weight: 600; font-size: 15px; white-space: nowrap;
+    transition: color 1s ease;
+}
+.badge-float-0 { animation: float0 3.5s ease-in-out infinite; }
+.badge-float-1 { animation: float1 4s ease-in-out infinite; }
+.badge-float-2 { animation: float2 4.5s ease-in-out infinite; }
 </style>
 @endpush
 
@@ -88,55 +85,46 @@
             @endif
         </div>
 
-        {{-- Kanan: ilustrasi animasi --}}
+        {{-- Kanan: Breathing Orb --}}
         <div class="hidden lg:flex justify-center items-center">
-            <div class="hero-visual relative w-72 h-72 flex items-center justify-center">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:40px;">
 
-                {{-- Lingkaran luar pulse --}}
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <div class="relative w-64 h-64">
-                        <div class="pulse-ring"></div>
-                        <div class="pulse-ring-2"></div>
+                {{-- Orb --}}
+                <div style="position:relative;width:280px;height:280px;display:flex;align-items:center;justify-content:center;">
+                    <div id="orbRing3" class="orb-ring" style="width:260px;height:260px;background:rgba(59,130,246,.06);border:1.5px solid rgba(59,130,246,.15);"></div>
+                    <div id="orbRing2" class="orb-ring" style="width:200px;height:200px;background:rgba(59,130,246,.10);border:1.5px solid rgba(59,130,246,.22);"></div>
+                    <div id="orbCore" class="orb-core" style="width:145px;height:145px;background:radial-gradient(circle at 35% 35%,#60a5facc,#3b82f6);box-shadow:0 0 40px rgba(59,130,246,.5);">
+                        <svg width="56" height="28" viewBox="0 0 60 30" fill="none">
+                            <path id="wavePath" d="M0 15 Q7.5 5 15 15 Q22.5 25 30 15 Q37.5 5 45 15 Q52.5 25 60 15"
+                                  stroke="rgba(255,255,255,.85)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                        </svg>
                     </div>
+                    <div id="orbLabel" style="position:absolute;bottom:-36px;left:50%;transform:translateX(-50%);font-weight:600;font-size:15px;white-space:nowrap;color:#3b82f6;transition:color 1s ease;">Tarik napas...</div>
                 </div>
 
-                {{-- Lingkaran tengah --}}
-                <div class="relative z-10 w-52 h-52 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full shadow-2xl flex flex-col items-center justify-center gap-1">
-                    <svg class="w-16 h-16 text-white/90" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span class="text-white font-bold text-lg">DASS-21</span>
-                    <span class="text-blue-200 text-xs">±5 menit</span>
-                </div>
-
-                {{-- Badge melayang: Depresi --}}
-                <div class="absolute -left-6 top-8 bg-white rounded-2xl shadow-lg px-4 py-3 border border-slate-100 w-40"
-                     style="animation: floatUp 3.5s ease-in-out infinite; animation-delay:.3s;">
-                    <p class="text-xs text-slate-400 font-semibold mb-1.5">Depresi</p>
-                    <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
-                        <div class="h-full bg-blue-400 rounded-full bar-anim" style="width:30%"></div>
+                {{-- 3 Badge --}}
+                <div style="display:flex;gap:14px;margin-top:16px;">
+                    <div class="badge-float-0" style="background:#fff;border-radius:14px;padding:12px 16px;border:1px solid #e2e8f0;box-shadow:0 4px 12px rgba(0,0,0,.06);min-width:108px;">
+                        <p style="font-size:10px;color:#94a3b8;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Depresi</p>
+                        <div style="height:5px;background:#f1f5f9;border-radius:99px;overflow:hidden;margin-bottom:5px;">
+                            <div class="bar-anim" style="height:100%;width:30%;background:#3b82f6;border-radius:99px;"></div>
+                        </div>
+                        <p style="font-size:11px;color:#16a34a;font-weight:700;">Normal</p>
                     </div>
-                    <p class="text-xs text-emerald-600 font-bold mt-1">Normal</p>
-                </div>
-
-                {{-- Badge melayang: Kecemasan --}}
-                <div class="absolute -right-6 top-16 bg-white rounded-2xl shadow-lg px-4 py-3 border border-slate-100 w-40"
-                     style="animation: floatUp 4s ease-in-out infinite; animation-delay:.8s;">
-                    <p class="text-xs text-slate-400 font-semibold mb-1.5">Kecemasan</p>
-                    <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
-                        <div class="h-full bg-indigo-400 rounded-full bar-anim" style="width:22%"></div>
+                    <div class="badge-float-1" style="background:#fff;border-radius:14px;padding:12px 16px;border:1px solid #e2e8f0;box-shadow:0 4px 12px rgba(0,0,0,.06);min-width:108px;">
+                        <p style="font-size:10px;color:#94a3b8;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Kecemasan</p>
+                        <div style="height:5px;background:#f1f5f9;border-radius:99px;overflow:hidden;margin-bottom:5px;">
+                            <div class="bar-anim" style="height:100%;width:22%;background:#6366f1;border-radius:99px;animation-delay:1s;"></div>
+                        </div>
+                        <p style="font-size:11px;color:#16a34a;font-weight:700;">Normal</p>
                     </div>
-                    <p class="text-xs text-emerald-600 font-bold mt-1">Normal</p>
-                </div>
-
-                {{-- Badge melayang: Stres --}}
-                <div class="absolute -left-4 bottom-8 bg-white rounded-2xl shadow-lg px-4 py-3 border border-slate-100 w-40"
-                     style="animation: floatUp 4.5s ease-in-out infinite; animation-delay:1.2s;">
-                    <p class="text-xs text-slate-400 font-semibold mb-1.5">Stres</p>
-                    <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
-                        <div class="h-full bg-amber-400 rounded-full bar-anim" style="width:45%"></div>
+                    <div class="badge-float-2" style="background:#fff;border-radius:14px;padding:12px 16px;border:1px solid #e2e8f0;box-shadow:0 4px 12px rgba(0,0,0,.06);min-width:108px;">
+                        <p style="font-size:10px;color:#94a3b8;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Stres</p>
+                        <div style="height:5px;background:#f1f5f9;border-radius:99px;overflow:hidden;margin-bottom:5px;">
+                            <div class="bar-anim" style="height:100%;width:45%;background:#f59e0b;border-radius:99px;animation-delay:1.2s;"></div>
+                        </div>
+                        <p style="font-size:11px;color:#d97706;font-weight:700;">Mild</p>
                     </div>
-                    <p class="text-xs text-amber-600 font-bold mt-1">Mild</p>
                 </div>
 
             </div>
@@ -182,5 +170,54 @@
         </p>
     </div>
 </section>
+
+@push('scripts')
+<script>
+(function(){
+    const phases = [
+        { name:'inhale', dur:4000, label:'Tarik napas...', color:'#3b82f6',
+          r3:260, r2:200, core:145, wave:'M0 15 Q7.5 5 15 15 Q22.5 25 30 15 Q37.5 5 45 15 Q52.5 25 60 15' },
+        { name:'hold',   dur:2000, label:'Tahan...',       color:'#6366f1',
+          r3:240, r2:185, core:135, wave:'M0 15 Q7.5 5 15 15 Q22.5 25 30 15 Q37.5 5 45 15 Q52.5 25 60 15' },
+        { name:'exhale', dur:4000, label:'Hembuskan...',   color:'#14b8a6',
+          r3:200, r2:155, core:110, wave:'M0 15 Q15 15 30 15 Q45 15 60 15' },
+    ];
+    let idx = 0;
+
+    function applyPhase(p) {
+        const r3   = document.getElementById('orbRing3');
+        const r2   = document.getElementById('orbRing2');
+        const core = document.getElementById('orbCore');
+        const lbl  = document.getElementById('orbLabel');
+        const wave = document.getElementById('wavePath');
+        if(!r3) return;
+
+        r3.style.width  = p.r3+'px'; r3.style.height = p.r3+'px';
+        r3.style.background   = `rgba(${p.color==='#3b82f6'?'59,130,246':p.color==='#6366f1'?'99,102,241':'20,184,166'},.06)`;
+        r3.style.borderColor  = `rgba(${p.color==='#3b82f6'?'59,130,246':p.color==='#6366f1'?'99,102,241':'20,184,166'},.18)`;
+
+        r2.style.width  = p.r2+'px'; r2.style.height = p.r2+'px';
+        r2.style.background   = `rgba(${p.color==='#3b82f6'?'59,130,246':p.color==='#6366f1'?'99,102,241':'20,184,166'},.12)`;
+        r2.style.borderColor  = `rgba(${p.color==='#3b82f6'?'59,130,246':p.color==='#6366f1'?'99,102,241':'20,184,166'},.25)`;
+
+        core.style.width  = p.core+'px'; core.style.height = p.core+'px';
+        core.style.background   = `radial-gradient(circle at 35% 35%,${p.color}cc,${p.color})`;
+        core.style.boxShadow    = `0 0 40px ${p.color}50`;
+
+        lbl.textContent = p.label;
+        lbl.style.color = p.color;
+        if(wave) wave.setAttribute('d', p.wave);
+    }
+
+    function next() {
+        idx = (idx + 1) % phases.length;
+        applyPhase(phases[idx]);
+    }
+
+    applyPhase(phases[0]);
+    setInterval(next, 4000);
+})();
+</script>
+@endpush
 
 @endsection
