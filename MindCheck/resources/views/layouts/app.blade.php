@@ -33,21 +33,7 @@
     @yield('content')
 </main>
 
-<footer class="border-t border-slate-100 py-6 mt-16">
-    <div class="w-full px-6 lg:px-14 xl:px-24 text-center text-slate-400">
-        <p class="text-sm">© {{ date('Y') }} MindCheck · Sistem Skrining Kesehatan Mental</p>
-    </div>
-</footer>
-
 @stack('scripts')
-
-<script>
-    window.addEventListener('pageshow', function (event) {
-        if (event.persisted) {
-            window.location.reload();
-        }
-    });
-</script>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </body>

@@ -29,7 +29,7 @@ class AuthController extends Controller
 
         if ($request->aksi === 'register') {
             $request->validate([
-                'username'              => 'required|string|max:255|unique:patients,username',
+                'username'              => 'required|alpha_num|max:255|unique:patients,username',
                 'password'              => 'required|string|min:6|confirmed',
                 'umur'                  => 'required|integer|min:1',
                 'status_pekerjaan'      => 'required|string|max:255',
@@ -54,29 +54,19 @@ class AuthController extends Controller
         ]);
 
         // 1. Cek ke tabel patients (kolom username)
-        $patient = Patient::withTrashed()->where('username', $request->username)->first();
+        $patient = Patient::where('username', $request->username)->first();
 
-        if ($patient) {
-            if ($patient->trashed()) {
-                return back()->withErrors(['login' => 'Akun Anda sedang dinonaktifkan/berada di tempat sampah. Silakan hubungi administrator untuk memulihkan akun Anda.'])->withInput();
-            }
-            if ($patient->password && Hash::check($request->password, $patient->password)) {
-                session(['patient_id' => $patient->id]);
-                return redirect()->route('patient.dashboard');
-            }
+        if ($patient && $patient->password && Hash::check($request->password, $patient->password)) {
+            session(['patient_id' => $patient->id]);
+            return redirect()->route('patient.dashboard');
         }
 
         // 2. Kalau tidak ketemu di patients, cek ke tabel admins (kolom email)
-        $admin = Admin::withTrashed()->where('email', $request->username)->first();
+        $admin = Admin::where('email', $request->username)->first();
 
-        if ($admin) {
-            if ($admin->trashed()) {
-                return back()->withErrors(['login' => 'Akun admin Anda sedang dinonaktifkan/berada di tempat sampah.'])->withInput();
-            }
-            if (Hash::check($request->password, $admin->password)) {
-                session(['admin_id' => $admin->id, 'admin_name' => $admin->name]);
-                return redirect()->route('admin.dashboard');
-            }
+        if ($admin && Hash::check($request->password, $admin->password)) {
+            session(['admin_id' => $admin->id, 'admin_name' => $admin->name]);
+            return redirect()->route('admin.dashboard');
         }
 
         // 3. Keduanya tidak cocok

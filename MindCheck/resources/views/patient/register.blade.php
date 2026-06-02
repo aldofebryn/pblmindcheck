@@ -19,11 +19,9 @@
 <div class="max-w-md mx-auto">
 
     {{-- Header --}}
-    <div class="text-center mb-6 anim-header">
-        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Buat Akun Baru</h1>
-        <p class="text-sm sm:text-base text-slate-500 max-w-md mx-auto leading-relaxed">
-            Daftar gratis untuk mulai melacak kondisi kesehatan mental Anda.
-        </p>
+    <div class="text-center mb-4 anim-header">
+        <h1 class="text-2xl font-bold text-slate-900 mb-1">Buat Akun Baru</h1>
+        <p class="text-sm text-slate-500">Daftar gratis dan mulai skrining kesehatan mental Anda.</p>
     </div>
 
     @if(session('success'))
@@ -59,7 +57,10 @@
                     <div>
                         <label class="block text-xs font-semibold text-indigo-100 mb-1.5 uppercase tracking-wide">Username</label>
                         <input type="text" name="username" value="{{ old('username') }}"
-                               placeholder="Masukkan username"
+                               placeholder="Huruf dan angka saja"
+                               pattern="[a-zA-Z0-9]+"
+                               title="Username hanya boleh huruf dan angka"
+                               oninput="this.value=this.value.replace(/[^a-zA-Z0-9]/g,'')"
                                class="w-full px-4 py-3 rounded-xl bg-white/15 backdrop-blur-sm border border-white/25 text-white placeholder-indigo-300 focus:outline-none focus:border-white focus:bg-white/20 transition-all text-sm"
                                required autofocus>
                         @error('username')<p class="text-red-200 text-xs mt-1">{{ $message }}</p>@enderror
