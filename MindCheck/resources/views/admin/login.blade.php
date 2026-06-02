@@ -1,67 +1,123 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Admin — MindCheck</title>
-    @vite(['resources/css/app.css','resources/js/app.js'])
-</head>
-<body class="bg-linear-to-tr from-blue-50 via-slate-100 to-blue-100 min-h-screen flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
+@extends('layouts.app')
+@section('title','Masuk — MindCheck')
 
-    <!-- Background blur circles -->
-    <div class="absolute -top-24 -left-24 w-72 h-72 bg-blue-300 rounded-full filter blur-3xl opacity-30 animate-pulse-slow"></div>
-    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-purple-300 rounded-full filter blur-3xl opacity-30 animate-pulse-slow"></div>
+@push('head')
+<style>
+    @keyframes fadeSlideUp {
+        from { opacity: 0; transform: translateY(28px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .anim-header { animation: fadeSlideUp .5s ease both; animation-delay: .05s; }
+    .anim-card   { animation: fadeSlideUp .55s ease both; animation-delay: .18s; }
+</style>
+@endpush
 
-    <div class="relative w-full max-w-sm sm:max-w-md">
+@section('content')
+<div class="w-full max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-16 py-6 sm:py-10">
+<div class="max-w-md mx-auto">
 
-        <div class="text-center mb-8 sm:mb-10 relative z-10">
-            <span class="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center mx-auto mb-4 sm:mb-5">
-                <img src="{{ asset('images/logo.png') }}" class="w-full h-full object-contain" alt="Logo">
+    {{-- Tombol Kembali --}}
+    <div class="mb-6 anim-header">
+        <a href="{{ route('landing') }}"
+           class="inline-flex items-center gap-2 text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+            </svg>
+            Kembali ke Beranda
+        </a>
+    </div>
+
+    {{-- Header --}}
+    <div class="text-center mb-8 anim-header">
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Selamat Datang</h1>
+        <p class="text-sm sm:text-base text-slate-500 max-w-md mx-auto leading-relaxed">
+            Masuk untuk melanjutkan skrining kesehatan mental Anda.
+        </p>
+    </div>
+
+    @error('login')
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 font-medium text-sm">
+        {{ $message }}
+    </div>
+    @enderror
+
+    {{-- ══ LOGIN CARD ══ --}}
+    <div class="relative overflow-hidden rounded-3xl shadow-lg border border-blue-100 anim-card">
+        <div class="absolute inset-0 bg-gradient-to-br from-sky-400 via-blue-500 to-blue-600"></div>
+        <div class="absolute -top-10 -left-10 w-40 h-40 bg-white/15 rounded-full"></div>
+        <div class="absolute -bottom-8 -right-8 w-32 h-32 bg-white/15 rounded-full"></div>
+        <div class="absolute top-1/2 left-4 w-16 h-16 bg-white/10 rounded-full"></div>
+
+        <div class="relative z-10 p-6 sm:p-8">
+            <span class="inline-flex items-center gap-1.5 bg-white/25 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 backdrop-blur-sm">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-300 inline-block"></span>
+                Masuk Akun
             </span>
-            <h1 class="text-xl sm:text-2xl font-bold text-slate-900">MindCheck Admin</h1>
-            <p class="text-slate-400 mt-1 sm:mt-1.5 text-sm sm:text-base">Masuk ke panel administrasi</p>
-        </div>
 
-        <div class="bg-white/70 backdrop-blur-lg border border-white/30 rounded-3xl p-6 sm:p-10 shadow-xl relative z-10">
-            @if($errors->any())
-            <div class="bg-red-50 border border-red-200 text-red-700 rounded-2xl px-4 sm:px-5 py-3 sm:py-4 mb-5 sm:mb-6 font-medium text-sm sm:text-base">
-                {{ $errors->first() }}
-            </div>
-            @endif
-            <form method="POST" action="{{ route('admin.login.post') }}" class="space-y-4 sm:space-y-5">
+            <h3 class="font-bold text-white text-xl mb-1">Sudah punya akun</h3>
+            <p class="text-blue-100 mb-6 text-sm">Masuk untuk melihat riwayat skrining Anda sebelumnya.</p>
+
+            <form method="POST" action="{{ route('patient.login.process') }}">
                 @csrf
-                <div>
-                    <label class="block text-sm sm:text-base font-bold text-slate-600 mb-1.5 sm:mb-2">Email</label>
-                    <input type="email" name="email" value="{{ old('email') }}" required autofocus
-                           placeholder="admin@mindcheck.id"
-                           class="w-full border border-slate-200 rounded-2xl px-4 sm:px-5 py-3 sm:py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm sm:text-base
-                                  {{ $errors->has('email') ? 'border-red-300 bg-red-50' : '' }}">
+                <input type="hidden" name="aksi" value="login">
+                <div class="space-y-4">
+
+                    <div>
+                        <label class="block text-xs font-semibold text-blue-100 mb-1.5 uppercase tracking-wide">Username</label>
+                        <input type="text" name="username" value="{{ old('username') }}"
+                               placeholder="Masukkan username"
+                               class="w-full px-4 py-3 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-blue-200 focus:outline-none focus:border-white focus:bg-white/30 transition-all text-sm"
+                               required autofocus>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-blue-100 mb-1.5 uppercase tracking-wide">Password</label>
+                        <div class="relative">
+                            <input type="password" name="password" id="loginPassword"
+                                   placeholder="••••••••"
+                                   class="w-full px-4 py-3 pr-12 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-blue-200 focus:outline-none focus:border-white focus:bg-white/30 transition-all text-sm"
+                                   required>
+                            <button type="button" onclick="togglePassword('loginPassword', 'eyeLogin')"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
+                                <svg id="eyeLogin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm sm:text-base font-bold text-slate-600 mb-1.5 sm:mb-2">Kata Sandi</label>
-                    <input type="password" name="password" required placeholder="••••••••"
-                           class="w-full border border-slate-200 rounded-2xl px-4 sm:px-5 py-3 sm:py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm sm:text-base">
-                </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-4 rounded-2xl transition-all text-base sm:text-lg mt-1 sm:mt-2 shadow-lg hover:shadow-xl">
+
+                <button type="submit"
+                        class="w-full mt-6 bg-white hover:bg-blue-50 text-blue-600 font-bold py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-[.98] text-sm">
                     Masuk
                 </button>
             </form>
-        </div>
 
-        <div class="text-center mt-4 sm:mt-6 space-y-1 sm:space-y-2 relative z-10">
-            <a href="{{ route('landing') }}" class="block text-slate-400 hover:text-slate-600 transition-colors text-sm sm:text-base">← Kembali ke beranda</a>
-            <p class="text-slate-300 text-xs sm:text-sm">Default: admin@mindcheck.id / mindcheck2026</p>
+            <div class="mt-6 pt-6 border-t border-white/20 text-center">
+                <p class="text-blue-100 text-sm">Belum punya akun?
+                    <a href="{{ route('patient.register') }}" class="text-white font-semibold hover:underline">Daftar di sini</a>
+                </p>
+            </div>
         </div>
     </div>
 
-    <style>
-        @keyframes pulse-slow {
-            0%, 100% { transform: scale(1); opacity: 0.3; }
-            50% { transform: scale(1.1); opacity: 0.5; }
-        }
-        .animate-pulse-slow {
-            animation: pulse-slow 8s ease-in-out infinite;
-        }
-    </style>
-</body>
-</html>
+</div>
+</div>
+
+@push('scripts')
+<script>
+function togglePassword(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon  = document.getElementById(iconId);
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/>`;
+    } else {
+        input.type = 'password';
+        icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>`;
+    }
+}
+</script>
+@endpush
+@endsection

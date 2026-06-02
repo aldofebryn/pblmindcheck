@@ -9,18 +9,17 @@
     }
     .anim-header { animation: fadeSlideUp .5s ease both; animation-delay: .05s; }
     .anim-card   { animation: fadeSlideUp .55s ease both; animation-delay: .18s; }
-
     .pw-match-ok   { color: #6ee7b7; font-size: .75rem; margin-top: 4px; display:none; }
     .pw-match-fail { color: #fca5a5; font-size: .75rem; margin-top: 4px; display:none; }
 </style>
 @endpush
 
 @section('content')
-<div class="w-full max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-16 py-8 sm:py-12">
+<div class="w-full max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-16 py-4 sm:py-6">
 <div class="max-w-md mx-auto">
 
     {{-- Header --}}
-    <div class="text-center mb-8 anim-header">
+    <div class="text-center mb-6 anim-header">
         <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Buat Akun Baru</h1>
         <p class="text-sm sm:text-base text-slate-500 max-w-md mx-auto leading-relaxed">
             Daftar gratis untuk mulai melacak kondisi kesehatan mental Anda.
@@ -50,53 +49,46 @@
             </span>
 
             <h3 class="font-bold text-white text-xl mb-1">Belum punya akun?</h3>
-            <p class="text-indigo-200 mb-6 text-sm">Isi data berikut untuk membuat akun baru.</p>
+            <p class="text-indigo-200 mb-5 text-sm">Isi data berikut untuk membuat akun baru.</p>
 
             <form method="POST" action="{{ route('patient.login.process') }}">
                 @csrf
                 <input type="hidden" name="aksi" value="register">
                 <div class="space-y-4">
 
-                    {{-- Username --}}
                     <div>
                         <label class="block text-xs font-semibold text-indigo-100 mb-1.5 uppercase tracking-wide">Username</label>
                         <input type="text" name="username" value="{{ old('username') }}"
-                               onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122)"
-                               oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')"
                                placeholder="Masukkan username"
                                class="w-full px-4 py-3 rounded-xl bg-white/15 backdrop-blur-sm border border-white/25 text-white placeholder-indigo-300 focus:outline-none focus:border-white focus:bg-white/20 transition-all text-sm"
                                required autofocus>
                         @error('username')<p class="text-red-200 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
 
-                    {{-- Umur & Status Pekerjaan --}}
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-indigo-100 mb-1.5 uppercase tracking-wide">Umur</label>
                             <input type="number" name="umur" value="{{ old('umur') }}" min="1"
-                                   onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                    placeholder="Usia"
                                    class="w-full px-4 py-3 rounded-xl bg-white/15 backdrop-blur-sm border border-white/25 text-white placeholder-indigo-300 focus:outline-none focus:border-white focus:bg-white/20 transition-all text-sm"
                                    required>
                             @error('umur')<p class="text-red-200 text-xs mt-1">{{ $message }}</p>@enderror
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-indigo-100 mb-1.5 uppercase tracking-wide">Status Pekerjaan</label>
+                            <label class="block text-xs font-semibold text-indigo-100 mb-1.5 uppercase tracking-wide">Status</label>
                             <select name="status_pekerjaan"
                                     class="w-full px-4 py-3 rounded-xl bg-white/15 backdrop-blur-sm border border-white/25 text-white focus:outline-none focus:border-white focus:bg-white/20 transition-all text-sm appearance-none"
                                     required>
                                 <option value="" class="text-slate-700 bg-white">Pilih...</option>
-                                <option value="Pelajar/Mahasiswa" class="text-slate-700 bg-white" {{ old('status_pekerjaan') == 'Pelajar/Mahasiswa' ? 'selected' : '' }}>Pelajar/Mahasiswa</option>
-                                <option value="Bekerja" class="text-slate-700 bg-white" {{ old('status_pekerjaan') == 'Bekerja' ? 'selected' : '' }}>Bekerja</option>
-                                <option value="Tidak Bekerja" class="text-slate-700 bg-white" {{ old('status_pekerjaan') == 'Tidak Bekerja' ? 'selected' : '' }}>Tidak Bekerja</option>
-                                <option value="Lainnya" class="text-slate-700 bg-white" {{ old('status_pekerjaan') == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                                <option value="Pelajar/Mahasiswa" class="text-slate-700 bg-white" {{ old('status_pekerjaan')=='Pelajar/Mahasiswa'?'selected':'' }}>Pelajar/Mahasiswa</option>
+                                <option value="Bekerja" class="text-slate-700 bg-white" {{ old('status_pekerjaan')=='Bekerja'?'selected':'' }}>Bekerja</option>
+                                <option value="Tidak Bekerja" class="text-slate-700 bg-white" {{ old('status_pekerjaan')=='Tidak Bekerja'?'selected':'' }}>Tidak Bekerja</option>
+                                <option value="Lainnya" class="text-slate-700 bg-white" {{ old('status_pekerjaan')=='Lainnya'?'selected':'' }}>Lainnya</option>
                             </select>
                             @error('status_pekerjaan')<p class="text-red-200 text-xs mt-1">{{ $message }}</p>@enderror
                         </div>
                     </div>
 
-                    {{-- Password --}}
                     <div>
                         <label class="block text-xs font-semibold text-indigo-100 mb-1.5 uppercase tracking-wide">Password</label>
                         <div class="relative">
@@ -104,7 +96,7 @@
                                    placeholder="Min. 6 karakter"
                                    class="w-full px-4 py-3 pr-12 rounded-xl bg-white/15 backdrop-blur-sm border border-white/25 text-white placeholder-indigo-300 focus:outline-none focus:border-white focus:bg-white/20 transition-all text-sm"
                                    required oninput="checkMatch()">
-                            <button type="button" onclick="togglePassword('regPassword', 'eyeReg')"
+                            <button type="button" onclick="togglePassword('regPassword','eyeReg')"
                                     class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
                                 <svg id="eyeReg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
@@ -115,7 +107,6 @@
                         @error('password')<p class="text-red-200 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
 
-                    {{-- Konfirmasi Password --}}
                     <div>
                         <label class="block text-xs font-semibold text-indigo-100 mb-1.5 uppercase tracking-wide">Konfirmasi Password</label>
                         <div class="relative">
@@ -123,7 +114,7 @@
                                    placeholder="Ulangi password"
                                    class="w-full px-4 py-3 pr-12 rounded-xl bg-white/15 backdrop-blur-sm border border-white/25 text-white placeholder-indigo-300 focus:outline-none focus:border-white focus:bg-white/20 transition-all text-sm"
                                    required oninput="checkMatch()">
-                            <button type="button" onclick="togglePassword('regPasswordConfirm', 'eyeRegConfirm')"
+                            <button type="button" onclick="togglePassword('regPasswordConfirm','eyeRegConfirm')"
                                     class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
                                 <svg id="eyeRegConfirm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
@@ -131,27 +122,36 @@
                                 </svg>
                             </button>
                         </div>
-                        {{-- Indikator cocok/tidak --}}
                         <p id="pwMatchOk"   class="pw-match-ok">✓ Password cocok</p>
                         <p id="pwMatchFail" class="pw-match-fail">✗ Password tidak cocok</p>
-                        @error('password_confirmation')<p class="text-red-200 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
 
                 </div>
 
                 <button type="submit" id="submitBtn"
-                        class="w-full mt-6 bg-white hover:bg-indigo-50 text-indigo-700 font-bold py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-[.98] text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                        class="w-full mt-5 bg-white hover:bg-indigo-50 text-indigo-700 font-bold py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-[.98] text-sm disabled:opacity-50 disabled:cursor-not-allowed">
                     Daftar Akun
                 </button>
             </form>
 
-            <div class="mt-6 pt-6 border-t border-white/20 text-center">
+            {{-- Footer card: kembali + sudah punya akun --}}
+            <div class="mt-5 pt-5 border-t border-white/20 flex items-center justify-between gap-3">
+                <a href="{{ route('landing') }}"
+                   class="inline-flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-4 py-2.5 rounded-xl border border-white/20 transition-all backdrop-blur-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-3.5 h-3.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+                    </svg>
+                    Beranda
+                </a>
                 <p class="text-indigo-200 text-sm">Sudah punya akun?
                     <a href="{{ route('patient.login') }}" class="text-white font-semibold hover:underline">Masuk di sini</a>
                 </p>
             </div>
         </div>
     </div>
+
+    {{-- Copyright --}}
+    <p class="text-center text-slate-400 text-xs mt-5">© {{ date('Y') }} MindCheck · Sistem Skrining Kesehatan Mental</p>
 
 </div>
 </div>
@@ -169,30 +169,15 @@ function togglePassword(inputId, iconId) {
         icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>`;
     }
 }
-
 function checkMatch() {
     const pw      = document.getElementById('regPassword').value;
     const confirm = document.getElementById('regPasswordConfirm').value;
     const ok      = document.getElementById('pwMatchOk');
     const fail    = document.getElementById('pwMatchFail');
     const btn     = document.getElementById('submitBtn');
-
-    if (confirm.length === 0) {
-        ok.style.display = 'none';
-        fail.style.display = 'none';
-        btn.disabled = false;
-        return;
-    }
-
-    if (pw === confirm) {
-        ok.style.display = 'block';
-        fail.style.display = 'none';
-        btn.disabled = false;
-    } else {
-        ok.style.display = 'none';
-        fail.style.display = 'block';
-        btn.disabled = true;
-    }
+    if(confirm.length === 0){ ok.style.display='none'; fail.style.display='none'; btn.disabled=false; return; }
+    if(pw === confirm){ ok.style.display='block'; fail.style.display='none'; btn.disabled=false; }
+    else { ok.style.display='none'; fail.style.display='block'; btn.disabled=true; }
 }
 </script>
 @endpush
