@@ -41,7 +41,7 @@
             @csrf @method('DELETE')
         </form>
 
-        {{-- Ikon Hapus (Tong Sampah) --}}
+        {{-- Ikon Hapus (Tempat Sampah) --}}
         <button type="button"
                 onclick="window.openModal_deleteQuestion('delete-q-{{ $q->id }}')"
                 class="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors"

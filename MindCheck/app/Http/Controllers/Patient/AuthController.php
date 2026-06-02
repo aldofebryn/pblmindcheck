@@ -58,7 +58,7 @@ class AuthController extends Controller
 
         if ($patient) {
             if ($patient->trashed()) {
-                return back()->withErrors(['login' => 'Akun Anda sedang dinonaktifkan/berada di tong sampah. Silakan hubungi administrator untuk memulihkan akun Anda.'])->withInput();
+                return back()->withErrors(['login' => 'Akun Anda sedang dinonaktifkan/berada di tempat sampah. Silakan hubungi administrator untuk memulihkan akun Anda.'])->withInput();
             }
             if ($patient->password && Hash::check($request->password, $patient->password)) {
                 session(['patient_id' => $patient->id]);
@@ -71,7 +71,7 @@ class AuthController extends Controller
 
         if ($admin) {
             if ($admin->trashed()) {
-                return back()->withErrors(['login' => 'Akun admin Anda sedang dinonaktifkan/berada di tong sampah.'])->withInput();
+                return back()->withErrors(['login' => 'Akun admin Anda sedang dinonaktifkan/berada di tempat sampah.'])->withInput();
             }
             if (Hash::check($request->password, $admin->password)) {
                 session(['admin_id' => $admin->id, 'admin_name' => $admin->name]);

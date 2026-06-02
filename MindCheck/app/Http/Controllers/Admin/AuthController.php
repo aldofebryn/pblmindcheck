@@ -28,7 +28,7 @@ class AuthController extends Controller
         $admin = Admin::withTrashed()->where('email', $request->email)->first();
         if ($admin) {
             if ($admin->trashed()) {
-                return back()->withErrors(['email' => 'Akun admin Anda sedang dinonaktifkan/berada di tong sampah.'])->withInput();
+                return back()->withErrors(['email' => 'Akun admin Anda sedang dinonaktifkan/berada di tempat sampah.'])->withInput();
             }
             if (Hash::check($request->password, $admin->password)) {
                 session(['admin_id' => $admin->id, 'admin_name' => $admin->name]);

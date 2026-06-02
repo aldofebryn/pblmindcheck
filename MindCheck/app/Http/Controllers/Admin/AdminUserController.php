@@ -98,7 +98,7 @@ class AdminUserController extends Controller
         return back()->with('success', 'Admin berhasil dihapus.');
     }
 
-    // ── Tong sampah admin (soft-deleted) ──────────────────────────
+    // ── Tempat sampah admin (soft-deleted) ──────────────────────────
     public function trash()
     {
         $this->guardAdmin();

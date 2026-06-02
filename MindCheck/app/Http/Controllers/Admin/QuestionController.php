@@ -74,10 +74,10 @@ class QuestionController extends Controller
         $question->delete();
         AdminLog::record('Menghapus pertanyaan', 'Pertanyaan', 'Admin menghapus pertanyaan.');
         return redirect()->route('admin.questions.index')
-            ->with('success', 'Pertanyaan dipindahkan ke tong sampah.');
+            ->with('success', 'Pertanyaan dipindahkan ke tempat sampah.');
     }
 
-    // ── Tong sampah ───────────────────────────────────────────────
+    // ── Tempat sampah ───────────────────────────────────────────────
     public function trash()
     {
         $this->guardAdmin();

@@ -1,12 +1,12 @@
 @extends('layouts.admin')
 
-@section('title', 'Tong Sampah - Pertanyaan DASS-21')
+@section('title', 'Tempat Sampah - Pertanyaan DASS-21')
 
 @section('content')
 <div class="max-w-7xl mx-auto">
     <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800">Tong Sampah</h1>
+            <h1 class="text-2xl font-bold text-slate-800">Tempat Sampah</h1>
             <p class="text-slate-500 text-sm">Pertanyaan yang telah dihapus (soft delete)</p>
         </div>
         <a href="{{ route('admin.questions.index') }}"
@@ -64,7 +64,7 @@
                     <tr>
                         <td colspan="4" class="px-6 py-12 text-center text-slate-400">
                             <svg class="w-10 h-10 mx-auto mb-3 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                            Tong sampah kosong.
+                            Tempat sampah kosong.
                         </td>
                     </tr>
                     @endforelse

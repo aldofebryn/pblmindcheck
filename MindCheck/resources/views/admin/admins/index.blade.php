@@ -168,8 +168,8 @@
 @php
     $modalId           = 'deleteAdmin';
     $modalTitle        = 'Hapus Admin?';
-    $modalBody         = 'Admin ini akan dipindahkan ke <strong>tong sampah</strong> dan dapat dipulihkan kapan saja.';
-    $modalWarning      = 'Admin tidak dapat login selama berada di tong sampah.';
+    $modalBody         = 'Admin ini akan dipindahkan ke <strong>tempat sampah</strong> dan dapat dipulihkan kapan saja.';
+    $modalWarning      = 'Admin tidak dapat login selama berada di tempat sampah.';
     $modalConfirmLabel = 'Ya, Hapus';
     $modalConfirmColor = 'red';
 @endphp

@@ -162,7 +162,7 @@
         </div>
 
         {{-- Title --}}
-        <h3 class="text-xl font-bold text-slate-800 text-center mb-1">Hapus Pasien ke Tong Sampah?</h3>
+        <h3 class="text-xl font-bold text-slate-800 text-center mb-1">Hapus Pasien ke Tempat Sampah?</h3>
         <p class="text-slate-500 text-sm text-center mb-5">
             Anda akan menghapus pasien <span id="modalPatientName" class="font-semibold text-slate-700"></span>.
         </p>
@@ -173,7 +173,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
             </svg>
             <div class="text-sm text-red-700">
-                <p class="font-semibold mb-0.5">Pasien akan dipindahkan ke Tong Sampah.</p>
+                <p class="font-semibold mb-0.5">Pasien akan dipindahkan ke Tempat Sampah.</p>
                 <p>Pasien dan riwayatnya (<span id="modalSessionCount" class="font-bold"></span> sesi) dapat dipulihkan kembali sewaktu-waktu.</p>
             </div>
         </div>

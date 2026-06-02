@@ -84,8 +84,8 @@
 @php
     $modalId           = 'deleteQuestion';
     $modalTitle        = 'Hapus Pertanyaan?';
-    $modalBody         = 'Pertanyaan akan dipindahkan ke <strong>tong sampah</strong> dan dapat dipulihkan kapan saja.';
-    $modalWarning      = 'Pertanyaan tidak akan aktif selama berada di tong sampah.';
+    $modalBody         = 'Pertanyaan akan dipindahkan ke <strong>tempat sampah</strong> dan dapat dipulihkan kapan saja.';
+    $modalWarning      = 'Pertanyaan tidak akan aktif selama berada di tempat sampah.';
     $modalConfirmLabel = 'Ya, Hapus';
     $modalConfirmColor = 'red';
 @endphp

@@ -183,11 +183,11 @@ class PatientController extends Controller
         AdminLog::record(
             'Menghapus data pasien',
             'Pasien',
-            'Admin memindahkan data pasien ke tong sampah: ' . $patientName
+            'Admin memindahkan data pasien ke tempat sampah: ' . $patientName
         );
 
         return redirect()->route('admin.patients.index')
-            ->with('success', 'Pasien berhasil dipindahkan ke tong sampah');
+            ->with('success', 'Pasien berhasil dipindahkan ke tempat sampah');
     }
 
     public function trash()

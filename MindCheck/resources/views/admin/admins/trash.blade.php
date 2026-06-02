@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title','Tong Sampah Admin')
+@section('title','Tempat Sampah Admin')
 
 @section('content')
 
@@ -68,7 +68,7 @@
                 <tr>
                     <td colspan="3" class="px-6 py-12 text-center text-slate-400">
                         <svg class="w-10 h-10 mx-auto mb-3 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        <p class="font-medium">Tong sampah kosong</p>
+                        <p class="font-medium">Tempat sampah kosong</p>
                     </td>
                 </tr>
                 @endforelse
