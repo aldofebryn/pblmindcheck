@@ -53,10 +53,10 @@
                     <div>
                         <label class="block text-xs font-semibold text-blue-100 mb-1.5 uppercase tracking-wide">Username</label>
                         <input type="text" name="username" value="{{ old('username') }}"
-                               placeholder="Huruf dan angka saja"
-                               pattern="[a-zA-Z0-9]+"
-                               title="Username hanya boleh huruf dan angka"
-                               oninput="this.value=this.value.replace(/[^a-zA-Z0-9]/g,'')"
+                               placeholder="Huruf saja, tanpa angka atau simbol"
+                               pattern="[a-zA-Z]+"
+                               title="Username hanya boleh berisi huruf (a-z, A-Z)"
+                               oninput="this.value=this.value.replace(/[^a-zA-Z]/g,'')"
                                class="w-full px-4 py-3 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-blue-200 focus:outline-none focus:border-white focus:bg-white/30 transition-all text-sm"
                                required autofocus>
                     </div>
