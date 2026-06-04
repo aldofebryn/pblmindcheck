@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('screenings', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
-            $table->timestamp('screened_at')->useCurrent();
-            $table->timestamps();
+        Schema::table('admins', function (Blueprint $table) {
+            $table->boolean('status')->default(1)->after('password');
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('screenings');
+        Schema::table('admins', function (Blueprint $table) {
+            $table->dropColumn('status');
+        });
     }
 };
