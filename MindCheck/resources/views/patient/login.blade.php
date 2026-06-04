@@ -53,7 +53,7 @@
                     <div>
                         <label class="block text-xs font-semibold text-blue-100 mb-1.5 uppercase tracking-wide">Username</label>
                         <input type="text" name="username" value="{{ old('username') }}"
-                               placeholder="Huruf saja, tanpa angka atau simbol"
+                               placeholder="Masukan Username Anda"
                                pattern="[a-zA-Z]+"
                                title="Username hanya boleh berisi huruf (a-z, A-Z)"
                                oninput="this.value=this.value.replace(/[^a-zA-Z]/g,'')"
