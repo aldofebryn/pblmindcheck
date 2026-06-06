@@ -14,6 +14,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\PreventBackHistory::class,
         ]);
+
+        // ⚠️ TEMPORARY — Bypass CSRF for JMeter load testing
+        // TODO: Remove this after testing is complete!
+        // $middleware->validateCsrfTokens(except: [
+            //'/screening/autosave',
+        // ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
