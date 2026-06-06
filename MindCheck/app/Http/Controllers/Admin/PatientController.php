@@ -57,12 +57,14 @@ class PatientController extends Controller
         $this->guardAdmin();
 
         $request->validate([
-            'username' => 'nullable|string|unique:patients,username|max:255',
-            'password' => 'nullable|string|min:6',
-            'umur' => 'nullable|integer|min:1',
+            'username'         => ['nullable', 'max:255', 'regex:/^[a-zA-Z ]+$/', 'unique:patients,username'],
+            'password'         => 'nullable|string|min:6',
+            'umur'             => 'nullable|integer|min:1|max:120',
             'status_pekerjaan' => 'nullable|string|max:255',
-            'alias' => 'nullable|string|max:255',
-            'admin_notes' => 'nullable|string',
+            'alias'            => 'nullable|string|max:255',
+            'admin_notes'      => 'nullable|string',
+        ], [
+            'username.regex' => 'Username hanya boleh berisi huruf dan spasi.',
         ]);
 
         Patient::create([
@@ -130,12 +132,14 @@ class PatientController extends Controller
         $patient = Patient::findOrFail($patient_id);
 
         $request->validate([
-            'username' => 'nullable|string|max:255|unique:patients,username,' . $patient_id . ',id',
-            'password' => 'nullable|string|min:6',
-            'umur' => 'nullable|integer|min:1',
+            'username'         => ['nullable', 'max:255', 'regex:/^[a-zA-Z ]+$/', 'unique:patients,username,' . $patient_id . ',id'],
+            'password'         => 'nullable|string|min:6',
+            'umur'             => 'nullable|integer|min:1|max:120',
             'status_pekerjaan' => 'nullable|string|max:255',
-            'alias' => 'nullable|string|max:255',
-            'admin_notes' => 'nullable|string',
+            'alias'            => 'nullable|string|max:255',
+            'admin_notes'      => 'nullable|string',
+        ], [
+            'username.regex' => 'Username hanya boleh berisi huruf dan spasi.',
         ]);
 
         $oldUsername = $patient->username;

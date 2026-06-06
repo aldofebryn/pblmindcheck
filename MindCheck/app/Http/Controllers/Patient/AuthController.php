@@ -29,10 +29,15 @@ class AuthController extends Controller
 
         if ($request->aksi === 'register') {
             $request->validate([
-                'username'              => 'required|alpha_num|max:255|unique:patients,username',
-                'password'              => 'required|string|min:6|confirmed',
-                'umur'                  => 'required|integer|min:1',
-                'status_pekerjaan'      => 'required|string|max:255',
+                'username'         => ['required', 'max:255', 'regex:/^[a-zA-Z ]+$/', 'unique:patients,username'],
+                'password'         => 'required|string|min:6|confirmed',
+                'umur'             => 'required|integer|min:1|max:120',
+                'status_pekerjaan' => 'required|string|max:255',
+            ], [
+                'username.regex'  => 'Username hanya boleh berisi huruf dan spasi.',
+                'username.unique' => 'Username sudah digunakan, pilih yang lain.',
+                'password.min'    => 'Password minimal 6 karakter.',
+                'password.confirmed' => 'Konfirmasi password tidak cocok.',
             ]);
 
             $patient = Patient::create([
@@ -54,11 +59,18 @@ class AuthController extends Controller
         ]);
 
         // 1. Cek ke tabel patients (kolom username)
-        $patient = Patient::where('username', $request->username)->first();
+        $patient = Patient::withTrashed()->where('username', $request->username)->first();
 
-        if ($patient && $patient->password && Hash::check($request->password, $patient->password)) {
-            session(['patient_id' => $patient->id]);
-            return redirect()->route('patient.dashboard');
+        if ($patient) {
+            // Pasien yang dihapus (tong sampah) tidak bisa login
+            if ($patient->trashed()) {
+                return back()->withErrors(['login' => 'Akun Anda sedang dinonaktifkan. Hubungi administrator.'])->withInput();
+            }
+
+            if ($patient->password && Hash::check($request->password, $patient->password)) {
+                session(['patient_id' => $patient->id]);
+                return redirect()->route('patient.dashboard');
+            }
         }
 
         // 2. Kalau tidak ketemu di patients, cek ke tabel admins (kolom email)

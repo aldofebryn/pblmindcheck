@@ -50,8 +50,7 @@
                     <label for="username" class="block text-sm font-bold text-slate-700 mb-1.5">Username</label>
                     <input type="text" name="username" id="username"
                            value="{{ old('username', $patient->username) }}"
-                           onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122)"
-                           oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '')"
+                           oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '')"
                            class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-sm"
                            placeholder="Misal: pasien01">
                     @error('username') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror

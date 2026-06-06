@@ -54,7 +54,7 @@
                         <label class="block text-xs font-semibold text-blue-100 mb-1.5 uppercase tracking-wide">Username</label>
                         <input type="text" name="username" value="{{ old('username') }}"
                                placeholder="Username atau email"
-                               oninput="this.value=this.value.replace(/[^a-zA-Z0-9@._]/g,'')"
+                               oninput="this.value=this.value.replace(/[^a-zA-Z0-9@._ ]/g,'')"
                                class="w-full px-4 py-3 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-blue-200 focus:outline-none focus:border-white focus:bg-white/30 transition-all text-sm"
                                required autofocus>
                     </div>

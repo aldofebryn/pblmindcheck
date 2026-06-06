@@ -97,10 +97,13 @@ class DashboardController extends Controller
         }
 
         $request->validate([
-            'username'         => 'required|unique:patients,username,' . $patient->id,
-            'umur'             => 'required|integer|min:1',
+            'username'         => ['required', 'max:255', 'regex:/^[a-zA-Z ]+$/', 'unique:patients,username,' . $patient->id],
+            'umur'             => 'required|integer|min:1|max:120',
             'status_pekerjaan' => 'required|string',
             'alias'            => 'nullable|string|max:100',
+        ], [
+            'username.regex' => 'Username hanya boleh berisi huruf dan spasi.',
+            'username.unique' => 'Username sudah digunakan, pilih yang lain.',
         ]);
 
         $patient->username         = $request->username;
