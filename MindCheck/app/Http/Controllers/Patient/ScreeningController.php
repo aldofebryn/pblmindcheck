@@ -11,7 +11,7 @@ use App\Models\Result;
 use App\Models\Setting;
 use App\Services\DecisionTreeService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Cache;
 
 class ScreeningController extends Controller
 {
@@ -30,7 +30,10 @@ class ScreeningController extends Controller
                 ->with('screening_next', $check['next']->format('d F Y'));
         }
 
-        $resumeMinutes = (int) Setting::getValue('screening_resume_minutes', 30);
+        // Cache setting resume minutes — tidak perlu query tiap request
+        $resumeMinutes = Cache::remember('setting_resume_minutes', 3600, function () {
+            return (int) Setting::getValue('screening_resume_minutes', 30);
+        });
 
         $draft = Screening::where('patient_id', $id_pasien)
             ->whereNull('selesai_at')
@@ -48,29 +51,29 @@ class ScreeningController extends Controller
 
         if (! $draft) {
             $draft = Screening::create([
-                'patient_id' => $id_pasien,
-                'started_at' => now(),
+                'patient_id'       => $id_pasien,
+                'started_at'       => now(),
                 'last_activity_at' => now(),
             ]);
         }
 
-        $questions = Question::orderBy('nomor')->get();
+        // Cache questions — pertanyaan jarang berubah, cache 1 jam
+        $questions = Cache::remember('dass21_questions', 3600, function () {
+            return Question::orderBy('nomor')->get();
+        });
 
-        $questionsFormatted = $questions->map(function ($q) {
-            return [
-                'id'       => $q->nomor,
-                'teks_id'  => $q->teks_id,
-                'teks_en'  => $q->teks_en,
-                'subskala' => $q->subskala,
-            ];
-        })->values();
+        $questionsFormatted = $questions->map(fn($q) => [
+            'id'       => $q->nomor,
+            'teks_id'  => $q->teks_id,
+            'teks_en'  => $q->teks_en,
+            'subskala' => $q->subskala,
+        ])->values();
 
+        // Eager load question untuk savedAnswers sekaligus
         $savedAnswers = Answer::where('screening_id', $draft->id)
-            ->with('question')
+            ->with('question:id,nomor')
             ->get()
-            ->mapWithKeys(function ($answer) {
-                return [$answer->question->nomor => $answer->nilai];
-            });
+            ->mapWithKeys(fn($a) => [$a->question->nomor => $a->nilai]);
 
         return view('patient.screening', compact(
             'questions',
@@ -89,55 +92,56 @@ class ScreeningController extends Controller
 
         $request->validate([
             'question_number' => 'required|integer|min:1|max:21',
-            'value' => 'required|integer|min:0|max:3',
+            'value'           => 'required|integer|min:0|max:3',
         ]);
+
+        $resumeMinutes = Cache::remember('setting_resume_minutes', 3600, function () {
+            return (int) Setting::getValue('screening_resume_minutes', 30);
+        });
 
         $screening = Screening::where('patient_id', $id_pasien)
             ->whereNull('selesai_at')
             ->latest()
             ->first();
 
-        $resumeMinutes = (int) Setting::getValue('screening_resume_minutes', 30);
-
-        if ($screening && $screening->last_activity_at && $screening->last_activity_at->lt(now()->subMinutes($resumeMinutes))) {
+        if ($screening && $screening->last_activity_at &&
+            $screening->last_activity_at->lt(now()->subMinutes($resumeMinutes))) {
             $screening->answers()->delete();
             $screening->delete();
 
             return response()->json([
-                'expired' => true,
-                'message' => 'Sesi telah berakhir, mohon ulangi screening.',
+                'expired'  => true,
+                'message'  => 'Sesi telah berakhir, mohon ulangi screening.',
                 'redirect' => route('patient.dashboard'),
             ], 419);
         }
 
         if (! $screening) {
             $screening = Screening::create([
-                'patient_id' => $id_pasien,
-                'started_at' => now(),
+                'patient_id'       => $id_pasien,
+                'started_at'       => now(),
                 'last_activity_at' => now(),
             ]);
         }
 
-        $question = Question::where('nomor', $request->question_number)->firstOrFail();
+        // Cache question map — tidak perlu query tiap autosave
+        $qMap = Cache::remember('dass21_question_map', 3600, function () {
+            return Question::orderBy('nomor')->pluck('id', 'nomor');
+        });
+
+        $questionId = $qMap[$request->question_number] ?? null;
+        if (! $questionId) {
+            return response()->json(['message' => 'Question not found'], 404);
+        }
 
         Answer::updateOrCreate(
-            [
-                'screening_id' => $screening->id,
-                'question_id' => $question->id,
-            ],
-            [
-                'nilai' => $request->value,
-            ]
+            ['screening_id' => $screening->id, 'question_id' => $questionId],
+            ['nilai'        => $request->value]
         );
 
-        $screening->update([
-            'last_activity_at' => now(),
-        ]);
+        $screening->update(['last_activity_at' => now()]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Jawaban tersimpan',
-        ]);
+        return response()->json(['success' => true, 'message' => 'Jawaban tersimpan']);
     }
 
     // ── Submit jawaban → decision tree → simpan ───────────────────
@@ -146,7 +150,6 @@ class ScreeningController extends Controller
         $id_pasien = session('patient_id');
         if (! $id_pasien) return redirect()->route('patient.login');
 
-        // Double-check cooldown (server-side guard)
         $check = $this->canScreen($id_pasien);
         if (! $check['can']) {
             return redirect()->route('patient.dashboard')
@@ -170,36 +173,33 @@ class ScreeningController extends Controller
 
         if (! $screening) {
             $screening = Screening::create([
-                'patient_id' => $id_pasien,
-                'started_at' => now(),
+                'patient_id'       => $id_pasien,
+                'started_at'       => now(),
                 'last_activity_at' => now(),
             ]);
         }
 
         $screening->update([
-            'selesai_at' => now(),
+            'selesai_at'       => now(),
             'last_activity_at' => now(),
         ]);
 
-        $qMap = Question::orderBy('nomor')->pluck('id', 'nomor');
+        // Pakai cached question map
+        $qMap = Cache::remember('dass21_question_map', 3600, function () {
+            return Question::orderBy('nomor')->pluck('id', 'nomor');
+        });
+
         foreach ($request->answers as $nomor => $nilai) {
             Answer::updateOrCreate(
-                [
-                    'screening_id' => $screening->id,
-                    'question_id'  => $qMap[(int) $nomor],
-                ],
-                [
-                    'nilai' => (int) $nilai,
-                ]
+                ['screening_id' => $screening->id, 'question_id' => $qMap[(int) $nomor]],
+                ['nilai'        => (int) $nilai]
             );
         }
 
         $dt    = new DecisionTreeService();
         $hasil = $dt->process(
             collect($request->answers)
-                ->mapWithKeys(function ($v, $k) {
-                    return [(int) $k => $v];
-                })
+                ->mapWithKeys(fn($v, $k) => [(int) $k => $v])
                 ->toArray()
         );
 
@@ -229,7 +229,6 @@ class ScreeningController extends Controller
 
         $teks = DecisionTreeService::tekstRek($result->rekomendasi);
 
-        // 5 sesi terbaru untuk line chart (kronologis)
         $riwayat = Screening::where('patient_id', $screening->patient_id)
             ->whereNotNull('selesai_at')
             ->with('result')
@@ -240,24 +239,16 @@ class ScreeningController extends Controller
             ->values();
 
         $lineData = [
-            'labels'    => $riwayat->map(function ($s) {
-                return $s->selesai_at->format('d/m');
-            })->toArray(),
-            'depresi'   => $riwayat->map(function ($s) {
-                return $s->result?->skor_depresi ?? 0;
-            })->toArray(),
-            'kecemasan' => $riwayat->map(function ($s) {
-                return $s->result?->skor_kecemasan ?? 0;
-            })->toArray(),
-            'stres'     => $riwayat->map(function ($s) {
-                return $s->result?->skor_stres ?? 0;
-            })->toArray(),
+            'labels'    => $riwayat->map(fn($s) => $s->selesai_at->format('d/m'))->toArray(),
+            'depresi'   => $riwayat->map(fn($s) => $s->result?->skor_depresi   ?? 0)->toArray(),
+            'kecemasan' => $riwayat->map(fn($s) => $s->result?->skor_kecemasan ?? 0)->toArray(),
+            'stres'     => $riwayat->map(fn($s) => $s->result?->skor_stres     ?? 0)->toArray(),
         ];
 
         $barData = [
             'labels'     => ['Depresi', 'Kecemasan', 'Stres'],
-            'scores'     => [$result->skor_depresi, $result->skor_kecemasan, $result->skor_stres],
-            'categories' => [$result->kat_depresi,  $result->kat_kecemasan,  $result->kat_stres],
+            'scores'     => [$result->skor_depresi,  $result->skor_kecemasan,  $result->skor_stres],
+            'categories' => [$result->kat_depresi,   $result->kat_kecemasan,   $result->kat_stres],
         ];
 
         $prev = Screening::where('patient_id', $screening->patient_id)
