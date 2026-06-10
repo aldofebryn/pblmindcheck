@@ -161,6 +161,7 @@
 const QUESTIONS    = @json($questionsFormatted);
 const LABEL_MAP    = {Depression:'Depresi', Anxiety:'Kecemasan', Stress:'Stres'};
 const AUTOSAVE_URL = "{{ route('screening.autosave') }}";
+const LEAVE_URL    = "{{ route('screening.leave') }}";
 const CSRF_TOKEN   = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
 let current            = 0;
@@ -247,7 +248,7 @@ function confirmExit(event, url) {
     Swal.fire({
         icon: 'info',
         title: 'Keluar dari screening?',
-        text: 'Progress screening kamu akan tetap disimpan sementara.',
+        text: 'Progress screening kamu akan tetap disimpan sementara. Timer akan mulai berjalan setelah kamu keluar.',
         showCancelButton: true,
         confirmButtonText: 'Ya, keluar',
         cancelButtonText: 'Lanjut screening',
@@ -257,8 +258,32 @@ function confirmExit(event, url) {
         background: '#ffffff',
         color: '#0f172a',
         customClass: { popup:'rounded-3xl', confirmButton:'rounded-xl px-5 py-2', cancelButton:'rounded-xl px-5 py-2' }
-    }).then(result => { if (result.isConfirmed) window.location.href = url; });
+    }).then(result => {
+        if (result.isConfirmed) {
+            notifyLeaveScreening();
+            setTimeout(() => window.location.href = url, 150);
+        }
+    });
 }
+
+function notifyLeaveScreening() {
+    const payload = JSON.stringify({ leaving: true });
+
+    fetch(LEAVE_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': CSRF_TOKEN,
+            'Accept': 'application/json',
+        },
+        body: payload,
+        keepalive: true,
+    }).catch(() => {});
+}
+
+window.addEventListener('pagehide', function () {
+    notifyLeaveScreening();
+});
 
 function submitForm() {
     const missing = QUESTIONS.filter(q => answers[q.id] === undefined);

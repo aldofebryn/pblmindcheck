@@ -20,6 +20,7 @@ Route::post('/patient-logout',  [Patient\AuthController::class, 'logout'])->name
 Route::get('/screening',  [Patient\ScreeningController::class, 'show'])->name('screening');
 Route::post('/screening', [Patient\ScreeningController::class, 'submit'])->name('screening.submit');
 Route::post('/screening/autosave', [Patient\ScreeningController::class, 'autosave'])->name('screening.autosave');
+Route::post('/screening/leave', [Patient\ScreeningController::class, 'leave'])->name('screening.leave');
 Route::get('/hasil/{screening}', [Patient\ScreeningController::class, 'hasil'])->name('hasil');
 
 Route::get('/dashboard',         [Patient\DashboardController::class, 'index'])->name('patient.dashboard');

@@ -8,6 +8,7 @@ use App\Models\Patient;
 use App\Models\Screening;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 
 class DashboardController extends Controller
@@ -50,42 +51,61 @@ class DashboardController extends Controller
         $canScreenNow   = $screenCheck['can'];
         $nextScreenDate = $screenCheck['next']?->format('d F Y');
 
-        $resumeMinutes = max(1, (int) Setting::getValue('screening_resume_minutes', 30));
+        $resumeMinutes = max(1, (int) Cache::remember('setting_resume_minutes', 3600, function () {
+            return (int) Setting::getValue('screening_resume_minutes', 30);
+        }));
+
+        $defaultSeconds = $resumeMinutes * 60;
 
         $activeDraft = Screening::where('patient_id', $id_pasien)
             ->whereNull('selesai_at')
             ->with(['answers.question:id,nomor'])
-            ->latest('last_activity_at')
+            ->latest()
             ->first();
 
         $activeDraftMeta = null;
 
         if ($activeDraft) {
-            $lastActivityAt = $activeDraft->last_activity_at
-                ?? $activeDraft->updated_at
-                ?? $activeDraft->created_at
-                ?? now();
+            $remainingSeconds = $activeDraft->remaining_seconds ?? $defaultSeconds;
 
-            $expiredAt = $lastActivityAt->copy()->addMinutes($resumeMinutes);
+            if ($activeDraft->timer_started_at) {
+                $elapsed = $activeDraft->timer_started_at->diffInSeconds(now());
+                $remainingSeconds -= $elapsed;
+            }
 
-            if ($expiredAt->lte(now())) {
+            $remainingSeconds = max(0, (int) $remainingSeconds);
+
+            if ($remainingSeconds <= 0) {
                 $activeDraft->answers()->delete();
                 $activeDraft->delete();
                 $activeDraft = null;
             } else {
-                $lastAnswer = $activeDraft->answers
-                    ->sortByDesc('updated_at')
-                    ->first();
+                if (! $activeDraft->timer_started_at) {
+                    $activeDraft->update([
+                        'remaining_seconds' => $remainingSeconds,
+                        'timer_started_at'  => now(),
+                        'last_activity_at'  => now(),
+                    ]);
 
-                $lastQuestionNumber = $lastAnswer?->question?->nomor;
+                    $activeDraft->refresh();
+                    $activeDraft->load(['answers.question:id,nomor']);
+                } else {
+                    $activeDraft->update([
+                        'remaining_seconds' => $remainingSeconds,
+                    ]);
+                }
+
+                $lastQuestionNumber = $activeDraft->last_answered_question
+                    ?? $activeDraft->answers->sortByDesc('updated_at')->first()?->question?->nomor;
+
                 $answeredCount = $activeDraft->answers->count();
 
                 $activeDraftMeta = [
                     'last_question_number' => $lastQuestionNumber,
-                    'answered_count'        => $answeredCount,
-                    'remaining_seconds'     => (int) max(0, now()->diffInSeconds($expiredAt, false)),
-                    'expired_at_text'       => $expiredAt->format('H:i') . ' WIB',
-                    'last_activity_text'    => $lastActivityAt->format('d F Y, H:i') . ' WIB',
+                    'answered_count'       => $answeredCount,
+                    'remaining_seconds'    => $remainingSeconds,
+                    'expired_at_text'      => now()->addSeconds($remainingSeconds)->format('H:i') . ' WIB',
+                    'last_activity_text'   => optional($activeDraft->last_activity_at)->format('d F Y, H:i') . ' WIB',
                 ];
             }
         }

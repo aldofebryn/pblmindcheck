@@ -11,12 +11,18 @@ class Screening extends Model
         'started_at',
         'last_activity_at',
         'selesai_at',
+        'timer_started_at',
+        'remaining_seconds',
+        'last_answered_question',
     ];
 
     protected $casts = [
         'selesai_at' => 'datetime',
         'started_at' => 'datetime',
         'last_activity_at' => 'datetime',
+        'timer_started_at' => 'datetime',
+        'remaining_seconds' => 'integer',
+        'last_answered_question' => 'integer',
     ];
 
     public function patient()

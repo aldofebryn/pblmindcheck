@@ -90,7 +90,7 @@
         </div>
 
         <p class="font-bold text-slate-700 text-lg sm:text-xl mb-2">{{ $activeDraft ? 'Skrining belum selesai' : 'Belum ada riwayat skrining' }}</p>
-        <p class="text-slate-400 mb-6 text-sm sm:text-base">{{ $activeDraft ? 'Progress jawaban Anda masih tersimpan sementara. Lanjutkan sebelum waktu habis.' : 'Mulai skrining pertama Anda untuk melihat hasil kondisi kesehatan mental Anda.' }}</p>
+        <p class="text-slate-400 mb-6 text-sm sm:text-base">{{ $activeDraft ? 'Progress jawaban Anda masih tersimpan sementara. Timer berjalan saat Anda tidak berada di halaman skrining.' : 'Mulai skrining pertama Anda untuk melihat hasil kondisi kesehatan mental Anda.' }}</p>
 
         @if($activeDraft && $activeDraftMeta)
         <div class="grid gap-4 text-left mb-6 sm:grid-cols-2">

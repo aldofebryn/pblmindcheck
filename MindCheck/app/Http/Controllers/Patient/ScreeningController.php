@@ -17,6 +17,69 @@ class ScreeningController extends Controller
 {
     use ChecksScreeningCooldown;
 
+    private function resumeSeconds(): int
+    {
+        $minutes = Cache::remember('setting_resume_minutes', 3600, function () {
+            return (int) Setting::getValue('screening_resume_minutes', 30);
+        });
+
+        return max(1, $minutes) * 60;
+    }
+
+    private function calculateRemainingSeconds(Screening $screening, int $defaultSeconds): int
+    {
+        $remaining = $screening->remaining_seconds ?? $defaultSeconds;
+
+        if ($screening->timer_started_at) {
+            $elapsed = $screening->timer_started_at->diffInSeconds(now());
+            $remaining -= $elapsed;
+        }
+
+        return max(0, (int) $remaining);
+    }
+
+    private function deleteExpiredDraft(Screening $screening): void
+    {
+        $screening->answers()->delete();
+        $screening->delete();
+    }
+
+    private function pauseDraftTimer(Screening $screening, int $defaultSeconds): bool
+    {
+        $remaining = $this->calculateRemainingSeconds($screening, $defaultSeconds);
+
+        if ($remaining <= 0) {
+            $this->deleteExpiredDraft($screening);
+            return false;
+        }
+
+        $screening->update([
+            'remaining_seconds' => $remaining,
+            'timer_started_at'  => null,
+            'last_activity_at'  => now(),
+        ]);
+
+        return true;
+    }
+
+    private function startDraftTimer(Screening $screening, int $defaultSeconds): bool
+    {
+        $remaining = $this->calculateRemainingSeconds($screening, $defaultSeconds);
+
+        if ($remaining <= 0) {
+            $this->deleteExpiredDraft($screening);
+            return false;
+        }
+
+        $screening->update([
+            'remaining_seconds' => $remaining,
+            'timer_started_at'  => now(),
+            'last_activity_at'  => now(),
+        ]);
+
+        return true;
+    }
+
     // ── Tampilkan form skrining ───────────────────────────────────
     public function show()
     {
@@ -30,34 +93,34 @@ class ScreeningController extends Controller
                 ->with('screening_next', $check['next']->format('d F Y'));
         }
 
-        // Cache setting resume minutes — tidak perlu query tiap request
-        $resumeMinutes = Cache::remember('setting_resume_minutes', 3600, function () {
-            return (int) Setting::getValue('screening_resume_minutes', 30);
-        });
+        $defaultSeconds = $this->resumeSeconds();
 
         $draft = Screening::where('patient_id', $id_pasien)
             ->whereNull('selesai_at')
             ->latest()
             ->first();
 
-        if ($draft && $draft->last_activity_at && $draft->last_activity_at->lt(now()->subMinutes($resumeMinutes))) {
-            $draft->answers()->delete();
-            $draft->delete();
+        if ($draft) {
+            if (! $this->pauseDraftTimer($draft, $defaultSeconds)) {
+                return redirect()
+                    ->route('patient.dashboard')
+                    ->with('screening_expired', 'Sesi sudah kadaluwarsa. Silakan mulai skrining dari awal.');
+            }
 
-            return redirect()
-                ->route('patient.dashboard')
-                ->with('screening_expired', 'Sesi sudah kadaluwarsa. Silakan mulai skrining dari awal.');
+            $draft->refresh();
         }
 
         if (! $draft) {
             $draft = Screening::create([
-                'patient_id'       => $id_pasien,
-                'started_at'       => now(),
-                'last_activity_at' => now(),
+                'patient_id'              => $id_pasien,
+                'started_at'              => now(),
+                'last_activity_at'        => now(),
+                'remaining_seconds'       => $defaultSeconds,
+                'timer_started_at'        => null,
+                'last_answered_question'  => null,
             ]);
         }
 
-        // Cache questions — pertanyaan jarang berubah, cache 1 jam
         $questions = Cache::remember('dass21_questions', 3600, function () {
             return Question::orderBy('nomor')->get();
         });
@@ -69,7 +132,6 @@ class ScreeningController extends Controller
             'subskala' => $q->subskala,
         ])->values();
 
-        // Eager load question untuk savedAnswers sekaligus
         $savedAnswers = Answer::where('screening_id', $draft->id)
             ->with('question:id,nomor')
             ->get()
@@ -95,36 +157,36 @@ class ScreeningController extends Controller
             'value'           => 'required|integer|min:0|max:3',
         ]);
 
-        $resumeMinutes = Cache::remember('setting_resume_minutes', 3600, function () {
-            return (int) Setting::getValue('screening_resume_minutes', 30);
-        });
+        $defaultSeconds = $this->resumeSeconds();
 
         $screening = Screening::where('patient_id', $id_pasien)
             ->whereNull('selesai_at')
             ->latest()
             ->first();
 
-        if ($screening && $screening->last_activity_at &&
-            $screening->last_activity_at->lt(now()->subMinutes($resumeMinutes))) {
-            $screening->answers()->delete();
-            $screening->delete();
+        if ($screening) {
+            if (! $this->pauseDraftTimer($screening, $defaultSeconds)) {
+                return response()->json([
+                    'expired'  => true,
+                    'message'  => 'Sesi telah berakhir, mohon ulangi screening.',
+                    'redirect' => route('patient.dashboard'),
+                ], 419);
+            }
 
-            return response()->json([
-                'expired'  => true,
-                'message'  => 'Sesi telah berakhir, mohon ulangi screening.',
-                'redirect' => route('patient.dashboard'),
-            ], 419);
+            $screening->refresh();
         }
 
         if (! $screening) {
             $screening = Screening::create([
-                'patient_id'       => $id_pasien,
-                'started_at'       => now(),
-                'last_activity_at' => now(),
+                'patient_id'              => $id_pasien,
+                'started_at'              => now(),
+                'last_activity_at'        => now(),
+                'remaining_seconds'       => $defaultSeconds,
+                'timer_started_at'        => null,
+                'last_answered_question'  => null,
             ]);
         }
 
-        // Cache question map — tidak perlu query tiap autosave
         $qMap = Cache::remember('dass21_question_map', 3600, function () {
             return Question::orderBy('nomor')->pluck('id', 'nomor');
         });
@@ -136,12 +198,48 @@ class ScreeningController extends Controller
 
         Answer::updateOrCreate(
             ['screening_id' => $screening->id, 'question_id' => $questionId],
-            ['nilai'        => $request->value]
+            ['nilai' => $request->value]
         );
 
-        $screening->update(['last_activity_at' => now()]);
+        $screening->update([
+            'last_activity_at'       => now(),
+            'last_answered_question' => $request->question_number,
+            'timer_started_at'       => null,
+        ]);
 
-        return response()->json(['success' => true, 'message' => 'Jawaban tersimpan']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Jawaban tersimpan',
+        ]);
+    }
+
+    public function leave(Request $request)
+    {
+        $id_pasien = session('patient_id');
+
+        if (! $id_pasien) {
+            return response()->json(['success' => false], 401);
+        }
+
+        $defaultSeconds = $this->resumeSeconds();
+
+        $screening = Screening::where('patient_id', $id_pasien)
+            ->whereNull('selesai_at')
+            ->latest()
+            ->first();
+
+        if (! $screening) {
+            return response()->json(['success' => true]);
+        }
+
+        if (! $this->startDraftTimer($screening, $defaultSeconds)) {
+            return response()->json([
+                'success' => false,
+                'expired' => true,
+            ], 419);
+        }
+
+        return response()->json(['success' => true]);
     }
 
     // ── Submit jawaban → decision tree → simpan ───────────────────
@@ -166,22 +264,40 @@ class ScreeningController extends Controller
             'answers.*.max' => 'Nilai jawaban tidak valid (0–3).',
         ]);
 
+        $defaultSeconds = $this->resumeSeconds();
+
         $screening = Screening::where('patient_id', $id_pasien)
             ->whereNull('selesai_at')
             ->latest()
             ->first();
 
+        if ($screening) {
+            if (! $this->pauseDraftTimer($screening, $defaultSeconds)) {
+                return redirect()
+                    ->route('patient.dashboard')
+                    ->with('screening_expired', 'Sesi sudah kadaluwarsa. Silakan mulai skrining dari awal.');
+            }
+
+            $screening->refresh();
+        }
+
         if (! $screening) {
             $screening = Screening::create([
-                'patient_id'       => $id_pasien,
-                'started_at'       => now(),
-                'last_activity_at' => now(),
+                'patient_id'              => $id_pasien,
+                'started_at'              => now(),
+                'last_activity_at'        => now(),
+                'remaining_seconds'       => $defaultSeconds,
+                'timer_started_at'        => null,
+                'last_answered_question'  => null,
             ]);
         }
 
         $screening->update([
-            'selesai_at'       => now(),
-            'last_activity_at' => now(),
+            'selesai_at'              => now(),
+            'last_activity_at'        => now(),
+            'remaining_seconds'       => 0,
+            'timer_started_at'        => null,
+            'last_answered_question'  => null,
         ]);
 
         // Pakai cached question map
