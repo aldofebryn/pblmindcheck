@@ -32,11 +32,14 @@
         <div class="p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
 
             {{-- Kiri: Sapaan --}}
-            <div>
-                <p class="text-sm font-semibold text-blue-600 uppercase tracking-widest mb-1">Selamat Datang</p>
-                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">
-                    Halo, {{ $patient->alias ?? $patient->username }}!
-                </h1>
+            <div class="flex items-center gap-4">
+                <img src="{{ asset('logo1.png') }}" alt="MindCheck" class="h-11 w-auto" />
+                <div>
+                    <p class="text-sm font-semibold text-blue-600 uppercase tracking-widest mb-1">Selamat Datang</p>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">
+                        Halo, {{ $patient->alias ?? $patient->username }}!
+                    </h1>
+                </div>
             </div>
 
             {{-- Kanan: Tombol CTA / Status Cooldown --}}
