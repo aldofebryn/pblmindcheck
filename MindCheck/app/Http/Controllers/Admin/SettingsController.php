@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use App\Models\AdminLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class SettingsController extends Controller
 {
@@ -30,6 +31,7 @@ class SettingsController extends Controller
         ]);
 
         Setting::setValue('screening_resume_minutes', $request->screening_resume_minutes);
+        Cache::forget('setting_resume_minutes');
 
         AdminLog::record(
             'Mengubah pengaturan',

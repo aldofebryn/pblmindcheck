@@ -50,22 +50,49 @@ class DashboardController extends Controller
         $canScreenNow   = $screenCheck['can'];
         $nextScreenDate = $screenCheck['next']?->format('d F Y');
 
-        $resumeMinutes = (int) Setting::getValue('screening_resume_minutes', 30);
+        $resumeMinutes = max(1, (int) Setting::getValue('screening_resume_minutes', 30));
 
         $activeDraft = Screening::where('patient_id', $id_pasien)
             ->whereNull('selesai_at')
-            ->latest()
+            ->with(['answers.question:id,nomor'])
+            ->latest('last_activity_at')
             ->first();
 
-        if ($activeDraft && $activeDraft->last_activity_at && $activeDraft->last_activity_at->lt(now()->subMinutes($resumeMinutes))) {
-            $activeDraft->answers()->delete();
-            $activeDraft->delete();
-            $activeDraft = null;
+        $activeDraftMeta = null;
+
+        if ($activeDraft) {
+            $lastActivityAt = $activeDraft->last_activity_at
+                ?? $activeDraft->updated_at
+                ?? $activeDraft->created_at
+                ?? now();
+
+            $expiredAt = $lastActivityAt->copy()->addMinutes($resumeMinutes);
+
+            if ($expiredAt->lte(now())) {
+                $activeDraft->answers()->delete();
+                $activeDraft->delete();
+                $activeDraft = null;
+            } else {
+                $lastAnswer = $activeDraft->answers
+                    ->sortByDesc('updated_at')
+                    ->first();
+
+                $lastQuestionNumber = $lastAnswer?->question?->nomor;
+                $answeredCount = $activeDraft->answers->count();
+
+                $activeDraftMeta = [
+                    'last_question_number' => $lastQuestionNumber,
+                    'answered_count'        => $answeredCount,
+                    'remaining_seconds'     => (int) max(0, now()->diffInSeconds($expiredAt, false)),
+                    'expired_at_text'       => $expiredAt->format('H:i') . ' WIB',
+                    'last_activity_text'    => $lastActivityAt->format('d F Y, H:i') . ' WIB',
+                ];
+            }
         }
 
         return view('patient.dashboard', compact(
             'screenings', 'id_pasien', 'chartData', 'patient',
-            'lastResult', 'canScreenNow', 'nextScreenDate', 'activeDraft'
+            'lastResult', 'canScreenNow', 'nextScreenDate', 'activeDraft', 'activeDraftMeta'
         ));
     }
 

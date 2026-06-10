@@ -88,9 +88,41 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
             </svg>
         </div>
-        <p class="font-bold text-slate-700 text-lg sm:text-xl mb-2">Belum ada riwayat skrining</p>
-        <p class="text-slate-400 mb-6 text-sm sm:text-base">Mulai skrining pertama Anda untuk melihat hasil kondisi kesehatan mental Anda.</p>
-        <a href="{{ route('screening') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition-colors shadow-sm">
+
+        <p class="font-bold text-slate-700 text-lg sm:text-xl mb-2">{{ $activeDraft ? 'Skrining belum selesai' : 'Belum ada riwayat skrining' }}</p>
+        <p class="text-slate-400 mb-6 text-sm sm:text-base">{{ $activeDraft ? 'Progress jawaban Anda masih tersimpan sementara. Lanjutkan sebelum waktu habis.' : 'Mulai skrining pertama Anda untuk melihat hasil kondisi kesehatan mental Anda.' }}</p>
+
+        @if($activeDraft && $activeDraftMeta)
+        <div class="grid gap-4 text-left mb-6 sm:grid-cols-2">
+            <div class="rounded-3xl border border-slate-100 bg-slate-50 p-4">
+                <div class="flex items-center justify-between gap-3 mb-3">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Sisa Waktu</p>
+                    </div>
+                </div>
+                <p id="draft-countdown" class="text-3xl font-bold text-slate-900">--:--</p>
+                <p id="draft-countdown-status" class="mt-3 text-sm text-slate-500">Sesi berakhir pukul {{ $activeDraftMeta['expired_at_text'] }}</p>
+            </div>
+
+            <div class="rounded-3xl border border-slate-100 bg-slate-50 p-4">
+                <div class="flex items-center justify-between gap-3 mb-3">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Progress Terakhir</p>
+                    </div>
+                </div>
+                <p class="text-2xl font-bold text-slate-900">
+                    @if($activeDraftMeta['last_question_number'])
+                        Terakhir mengisi soal nomor {{ $activeDraftMeta['last_question_number'] }}
+                    @else
+                        Belum ada jawaban tersimpan
+                    @endif
+                </p>
+                <p class="mt-3 text-sm text-slate-500">{{ $activeDraftMeta['answered_count'] }} dari 21 pertanyaan terisi. Aktivitas terakhir: {{ $activeDraftMeta['last_activity_text'] }}</p>
+            </div>
+        </div>
+        @endif
+
+        <a id="draft-screening-cta" href="{{ route('screening') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition-colors shadow-sm">
             {{ $activeDraft ? 'Lanjutkan Skrining' : 'Mulai Skrining Pertama' }}
         </a>
     </div>
@@ -203,6 +235,56 @@
 @endsection
 
 @push('scripts')
+@if($activeDraft && $activeDraftMeta)
+<script>
+(function () {
+    const countdownEl = document.getElementById('draft-countdown');
+    const statusEl = document.getElementById('draft-countdown-status');
+    const ctaEl = document.getElementById('draft-screening-cta');
+    let remaining = Number(@json($activeDraftMeta['remaining_seconds']));
+
+    function formatTime(totalSeconds) {
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        if (hours > 0) {
+            return String(hours).padStart(2, '0') + ':' +
+                   String(minutes).padStart(2, '0') + ':' +
+                   String(seconds).padStart(2, '0');
+        }
+
+        return String(minutes).padStart(2, '0') + ':' +
+               String(seconds).padStart(2, '0');
+    }
+
+    function tick() {
+        if (! countdownEl) return;
+
+        if (remaining <= 0) {
+            countdownEl.textContent = '00:00';
+            if (statusEl) {
+                statusEl.textContent = 'Sesi telah berakhir. Silakan mulai ulang skrining.';
+            }
+            if (ctaEl) {
+                ctaEl.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                ctaEl.classList.add('bg-slate-300', 'cursor-not-allowed');
+                ctaEl.setAttribute('aria-disabled', 'true');
+                ctaEl.removeAttribute('href');
+            }
+            return;
+        }
+
+        countdownEl.textContent = formatTime(remaining);
+        remaining -= 1;
+        setTimeout(tick, 1000);
+    }
+
+    tick();
+})();
+</script>
+@endif
+
 @if($screenings->count() === 1 && $lastResult)
 <script>
 new Chart(document.getElementById('singleBarChart'), {
