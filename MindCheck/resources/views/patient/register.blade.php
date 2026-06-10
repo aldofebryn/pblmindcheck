@@ -97,8 +97,9 @@
                         <div class="relative">
                             <input type="password" name="password" id="regPassword"
                                    placeholder="Min. 6 karakter"
+                                   minlength="6"
                                    class="w-full px-4 py-3 pr-12 rounded-xl bg-white/15 backdrop-blur-sm border border-white/25 text-white placeholder-indigo-300 focus:outline-none focus:border-white focus:bg-white/20 transition-all text-sm"
-                                   required oninput="checkMatch()">
+                                   required>
                             <button type="button" onclick="togglePassword('regPassword','eyeReg')"
                                     class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
                                 <svg id="eyeReg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
@@ -107,6 +108,7 @@
                                 </svg>
                             </button>
                         </div>
+                        <p id="passwordLengthError" class="text-red-200 text-xs mt-1 hidden">Password minimal 6 karakter.</p>
                         @error('password')<p class="text-red-200 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
 
@@ -116,7 +118,7 @@
                             <input type="password" name="password_confirmation" id="regPasswordConfirm"
                                    placeholder="Ulangi password"
                                    class="w-full px-4 py-3 pr-12 rounded-xl bg-white/15 backdrop-blur-sm border border-white/25 text-white placeholder-indigo-300 focus:outline-none focus:border-white focus:bg-white/20 transition-all text-sm"
-                                   required oninput="checkMatch()">
+                                   required>
                             <button type="button" onclick="togglePassword('regPasswordConfirm','eyeRegConfirm')"
                                     class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
                                 <svg id="eyeRegConfirm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-5 h-5">
@@ -125,8 +127,7 @@
                                 </svg>
                             </button>
                         </div>
-                        <p id="pwMatchOk"   class="pw-match-ok">✓ Password cocok</p>
-                        <p id="pwMatchFail" class="pw-match-fail">✗ Password tidak cocok</p>
+                        <p id="passwordConfirmationWarning" class="text-red-200 text-xs mt-1 hidden">Konfirmasi password belum sama.</p>
                     </div>
 
                 </div>
@@ -172,16 +173,86 @@ function togglePassword(inputId, iconId) {
         icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>`;
     }
 }
-function checkMatch() {
-    const pw      = document.getElementById('regPassword').value;
-    const confirm = document.getElementById('regPasswordConfirm').value;
-    const ok      = document.getElementById('pwMatchOk');
-    const fail    = document.getElementById('pwMatchFail');
-    const btn     = document.getElementById('submitBtn');
-    if(confirm.length === 0){ ok.style.display='none'; fail.style.display='none'; btn.disabled=false; return; }
-    if(pw === confirm){ ok.style.display='block'; fail.style.display='none'; btn.disabled=false; }
-    else { ok.style.display='none'; fail.style.display='block'; btn.disabled=true; }
-}
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('form');
+    const passwordInput = document.getElementById('regPassword');
+    const confirmationInput = document.getElementById('regPasswordConfirm');
+    const passwordWarning = document.getElementById('passwordLengthError');
+    const confirmationWarning = document.getElementById('passwordConfirmationWarning');
+    const submitButton = document.getElementById('submitBtn');
+
+    if (!form || !passwordInput || !confirmationInput || !passwordWarning || !confirmationWarning || !submitButton) {
+        return;
+    }
+
+    function setInvalid(input) {
+        input.classList.remove('border-white/25', 'focus:ring-white/70');
+        input.classList.add('border-red-300', 'focus:ring-red-200');
+    }
+
+    function setValid(input) {
+        input.classList.remove('border-red-300', 'focus:ring-red-200');
+        input.classList.add('border-white/25', 'focus:ring-white/70');
+    }
+
+    function validatePasswordLength() {
+        const password = passwordInput.value;
+        if (password.length > 0 && password.length < 6) {
+            passwordWarning.classList.remove('hidden');
+            setInvalid(passwordInput);
+            return false;
+        }
+
+        passwordWarning.classList.add('hidden');
+        setValid(passwordInput);
+        return password.length >= 6;
+    }
+
+    function validatePasswordConfirmation() {
+        const password = passwordInput.value;
+        const confirmation = confirmationInput.value;
+        if (confirmation.length === 0) {
+            confirmationWarning.classList.add('hidden');
+            confirmationInput.classList.remove('border-red-300', 'focus:ring-red-200');
+            return false;
+        }
+
+        if (password !== confirmation) {
+            confirmationWarning.classList.remove('hidden');
+            setInvalid(confirmationInput);
+            return false;
+        }
+
+        confirmationWarning.classList.add('hidden');
+        setValid(confirmationInput);
+        return true;
+    }
+
+    function updateSubmitState() {
+        const passwordValid = validatePasswordLength();
+        const confirmationValid = validatePasswordConfirmation();
+        const formValid = passwordValid && confirmationValid;
+
+        submitButton.disabled = !formValid;
+        submitButton.classList.toggle('opacity-60', !formValid);
+        submitButton.classList.toggle('cursor-not-allowed', !formValid);
+        return formValid;
+    }
+
+    passwordInput.addEventListener('input', updateSubmitState);
+    passwordInput.addEventListener('blur', updateSubmitState);
+    confirmationInput.addEventListener('input', updateSubmitState);
+    confirmationInput.addEventListener('blur', updateSubmitState);
+
+    form.addEventListener('submit', function (event) {
+        if (!updateSubmitState()) {
+            event.preventDefault();
+            passwordInput.focus();
+        }
+    });
+
+    updateSubmitState();
+});
 </script>
 @endpush
 @endsection
