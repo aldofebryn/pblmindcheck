@@ -112,7 +112,7 @@
                 </div>
                 <p class="text-2xl font-bold text-slate-900">
                     @if($activeDraftMeta['last_question_number'])
-                        Terakhir mengisi soal nomor {{ $activeDraftMeta['last_question_number'] }}
+                        Terakhir tersimpan sampai soal nomor {{ $activeDraftMeta['last_question_number'] }}
                     @else
                         Belum ada jawaban tersimpan
                     @endif

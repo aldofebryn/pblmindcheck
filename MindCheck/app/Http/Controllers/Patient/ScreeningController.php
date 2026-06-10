@@ -201,9 +201,14 @@ class ScreeningController extends Controller
             ['nilai' => $request->value]
         );
 
+        $latestAnsweredQuestion = max(
+            (int) ($screening->last_answered_question ?? 0),
+            (int) $request->question_number
+        );
+
         $screening->update([
             'last_activity_at'       => now(),
-            'last_answered_question' => $request->question_number,
+            'last_answered_question' => $latestAnsweredQuestion,
             'timer_started_at'       => null,
         ]);
 

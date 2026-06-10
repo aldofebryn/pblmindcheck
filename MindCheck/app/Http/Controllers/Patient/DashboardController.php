@@ -95,10 +95,19 @@ class DashboardController extends Controller
                     ]);
                 }
 
-                $lastQuestionNumber = $activeDraft->last_answered_question
-                    ?? $activeDraft->answers->sortByDesc('updated_at')->first()?->question?->nomor;
+                $answeredNumbers = $activeDraft->answers
+                    ->map(fn ($answer) => optional($answer->question)->nomor)
+                    ->filter()
+                    ->values();
 
-                $answeredCount = $activeDraft->answers->count();
+                $lastQuestionNumber = $answeredNumbers->max();
+                $answeredCount = $answeredNumbers->count();
+
+                if ($lastQuestionNumber && $activeDraft->last_answered_question !== $lastQuestionNumber) {
+                    $activeDraft->update([
+                        'last_answered_question' => $lastQuestionNumber,
+                    ]);
+                }
 
                 $activeDraftMeta = [
                     'last_question_number' => $lastQuestionNumber,
