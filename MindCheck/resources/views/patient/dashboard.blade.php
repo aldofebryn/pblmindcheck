@@ -32,14 +32,11 @@
         <div class="p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
 
             {{-- Kiri: Sapaan --}}
-            <div class="flex items-center gap-4">
-                <img src="{{ asset('logo1.png') }}" alt="MindCheck" class="h-11 w-auto" />
-                <div>
-                    <p class="text-sm font-semibold text-blue-600 uppercase tracking-widest mb-1">Selamat Datang</p>
-                    <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">
-                        Halo, {{ $patient->alias ?? $patient->username }}!
-                    </h1>
-                </div>
+            <div>
+                <p class="text-sm font-semibold text-blue-600 uppercase tracking-widest mb-1">Selamat Datang</p>
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">
+                    Halo, {{ $patient->alias ?? $patient->username }}!
+                </h1>
             </div>
 
             {{-- Kanan: Tombol CTA / Status Cooldown --}}
@@ -86,14 +83,21 @@
     {{-- ── Empty state ─────────────────────────────────────────────── --}}
     @if($screenings->isEmpty())
     <div class="bg-white border border-slate-100 rounded-3xl p-16 sm:p-20 text-center shadow-sm">
-        <div class="w-16 h-16 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
-            <svg class="w-8 h-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-            </svg>
+        <div class="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
+            <img 
+                src="{{ asset('logo1.png') }}" 
+                alt="MindCheck Logo" 
+                class="w-14 h-14 object-contain"
+            >
         </div>
 
-        <p class="font-bold text-slate-700 text-lg sm:text-xl mb-2">{{ $activeDraft ? 'Skrining belum selesai' : 'Belum ada riwayat skrining' }}</p>
-        <p class="text-slate-400 mb-6 text-sm sm:text-base">{{ $activeDraft ? 'Progress jawaban Anda masih tersimpan sementara. Timer berjalan saat Anda tidak berada di halaman skrining.' : 'Mulai skrining pertama Anda untuk melihat hasil kondisi kesehatan mental Anda.' }}</p>
+        <p class="font-bold text-slate-700 text-lg sm:text-xl mb-2">
+            {{ $activeDraft ? 'Skrining belum selesai' : 'Belum ada riwayat skrining' }}
+        </p>
+
+        <p class="text-slate-400 mb-6 text-sm sm:text-base">
+            {{ $activeDraft ? 'Progress jawaban Anda masih tersimpan sementara. Timer berjalan saat Anda tidak berada di halaman skrining.' : 'Mulai skrining pertama Anda untuk melihat hasil kondisi kesehatan mental Anda.' }}
+        </p>
 
         @if($activeDraft && $activeDraftMeta)
         <div class="grid gap-4 text-left mb-6 sm:grid-cols-2">
@@ -104,7 +108,9 @@
                     </div>
                 </div>
                 <p id="draft-countdown" class="text-3xl font-bold text-slate-900">--:--</p>
-                <p id="draft-countdown-status" class="mt-3 text-sm text-slate-500">Sesi berakhir pukul {{ $activeDraftMeta['expired_at_text'] }}</p>
+                <p id="draft-countdown-status" class="mt-3 text-sm text-slate-500">
+                    Sesi berakhir pukul {{ $activeDraftMeta['expired_at_text'] }}
+                </p>
             </div>
 
             <div class="rounded-3xl border border-slate-100 bg-slate-50 p-4">
@@ -120,7 +126,9 @@
                         Belum ada jawaban tersimpan
                     @endif
                 </p>
-                <p class="mt-3 text-sm text-slate-500">{{ $activeDraftMeta['answered_count'] }} dari 21 pertanyaan terisi. Aktivitas terakhir: {{ $activeDraftMeta['last_activity_text'] }}</p>
+                <p class="mt-3 text-sm text-slate-500">
+                    {{ $activeDraftMeta['answered_count'] }} dari 21 pertanyaan terisi. Aktivitas terakhir: {{ $activeDraftMeta['last_activity_text'] }}
+                </p>
             </div>
         </div>
         @endif
