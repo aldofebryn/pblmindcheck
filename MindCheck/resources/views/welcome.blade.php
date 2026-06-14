@@ -77,39 +77,44 @@
                 </a>
             </div>
 
-            {{-- ✏️ BAGIAN 1 YANG DIGANTI: stat dengan animasi --}}
             @if($totalSesi > 0)
-            <div class="anim-4 mt-2 inline-flex items-center gap-3
-                        bg-gradient-to-r from-blue-50 to-indigo-50
-                        border border-blue-100
-                        rounded-2xl px-5 py-3
-                        shadow-sm hover:shadow-md transition-shadow duration-300">
-
-                {{-- Pulsing dot --}}
-                <span class="relative flex h-3 w-3">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                </span>
-
-                {{-- Teks + angka animasi --}}
-                <p class="text-slate-600 text-sm sm:text-base leading-snug">
-                    Bergabung bersama
-                    <span id="statCount"
-                          class="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500
-                                 text-lg sm:text-xl tabular-nums"
-                          data-target="{{ $totalSesi }}">0</span>
-                    <span class="font-semibold text-slate-700">pasien</span>
-                    yang sudah mengenali kondisi mentalnya ✨
-                </p>
+            <div class="anim-4 inline-flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-5 py-3 shadow-sm">
+                <div class="flex -space-x-2">
+                    <div class="w-8 h-8 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center text-white text-xs font-bold">A</div>
+                    <div class="w-8 h-8 rounded-full bg-indigo-500 border-2 border-white flex items-center justify-center text-white text-xs font-bold">B</div>
+                    <div class="w-8 h-8 rounded-full bg-teal-500 border-2 border-white flex items-center justify-center text-white text-xs font-bold">C</div>
+                </div>
+                <div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-bold text-slate-900 text-base">{{ number_format($totalSesi) }}+</span>
+                        <span class="text-slate-500 text-sm">orang sudah mencoba</span>
+                        <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-600 text-xs font-semibold px-2 py-0.5 rounded-full border border-emerald-200">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                            Gratis
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-0.5">Kenali kondisimu sekarang, hanya ±5 menit</p>
+                </div>
             </div>
             @endif
-            {{-- ✏️ AKHIR BAGIAN 1 --}}
-
         </div>
 
         {{-- Kanan: Breathing Orb --}}
         <div class="hidden lg:flex justify-center items-center">
-            <div style="display:flex;flex-direction:column;align-items:center;gap:40px;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:32px;">
+
+                {{-- Instruksi --}}
+                <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:14px 20px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.05);max-width:280px;">
+                    <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:6px;">
+                        <div style="width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;"></div>
+                        <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#22c55e;">Sebelum Mulai</span>
+                    </div>
+                    <p style="font-size:13.5px;color:#475569;line-height:1.6;margin:0;">
+                        Ikuti gerakan lingkaran ini —<br>
+                        <strong style="color:#3b82f6;">tarik napas</strong> saat membesar,
+                        <strong style="color:#14b8a6;">hembuskan</strong> saat mengecil
+                    </p>
+                </div>
 
                 {{-- Orb --}}
                 <div style="position:relative;width:280px;height:280px;display:flex;align-items:center;justify-content:center;">
@@ -193,10 +198,8 @@
     </div>
 </section>
 
-{{-- ✏️ BAGIAN 2 YANG DIGANTI: scripts (orb lama + counter baru digabung) --}}
 @push('scripts')
 <script>
-// ── Breathing Orb (tidak berubah) ──
 (function(){
     const phases = [
         { name:'inhale', dur:4000, label:'Tarik napas...', color:'#3b82f6',
@@ -241,28 +244,7 @@
     applyPhase(phases[0]);
     setInterval(next, 4000);
 })();
-
-// ── Animated Counter (BARU) ──
-(function () {
-    const el = document.getElementById('statCount');
-    if (!el) return;
-    const target = parseInt(el.dataset.target, 10);
-    const dur    = 1800;
-    function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
-    function tick(start, now) {
-        const t   = Math.min((now - start) / dur, 1);
-        el.textContent = Math.round(easeOut(t) * target).toLocaleString('id-ID');
-        if (t < 1) requestAnimationFrame((ts) => tick(start, ts));
-    }
-    new IntersectionObserver((entries, obs) => {
-        if (entries[0].isIntersecting) {
-            requestAnimationFrame((ts) => tick(ts, ts));
-            obs.disconnect();
-        }
-    }, { threshold: 0.5 }).observe(el);
-})();
 </script>
 @endpush
-{{-- ✏️ AKHIR BAGIAN 2 --}}
 
 @endsection
