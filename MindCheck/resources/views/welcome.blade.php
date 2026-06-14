@@ -77,12 +77,34 @@
                 </a>
             </div>
 
+            {{-- ✏️ BAGIAN 1 YANG DIGANTI: stat dengan animasi --}}
             @if($totalSesi > 0)
-            <p class="anim-4 text-slate-400 text-base">
-                <span class="font-bold text-slate-700 text-xl">{{ number_format($totalSesi) }}</span>
-                skrining telah diselesaikan
-            </p>
+            <div class="anim-4 mt-2 inline-flex items-center gap-3
+                        bg-gradient-to-r from-blue-50 to-indigo-50
+                        border border-blue-100
+                        rounded-2xl px-5 py-3
+                        shadow-sm hover:shadow-md transition-shadow duration-300">
+
+                {{-- Pulsing dot --}}
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                </span>
+
+                {{-- Teks + angka animasi --}}
+                <p class="text-slate-600 text-sm sm:text-base leading-snug">
+                    Bergabung bersama
+                    <span id="statCount"
+                          class="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500
+                                 text-lg sm:text-xl tabular-nums"
+                          data-target="{{ $totalSesi }}">0</span>
+                    <span class="font-semibold text-slate-700">pasien</span>
+                    yang sudah mengenali kondisi mentalnya ✨
+                </p>
+            </div>
             @endif
+            {{-- ✏️ AKHIR BAGIAN 1 --}}
+
         </div>
 
         {{-- Kanan: Breathing Orb --}}
@@ -171,8 +193,10 @@
     </div>
 </section>
 
+{{-- ✏️ BAGIAN 2 YANG DIGANTI: scripts (orb lama + counter baru digabung) --}}
 @push('scripts')
 <script>
+// ── Breathing Orb (tidak berubah) ──
 (function(){
     const phases = [
         { name:'inhale', dur:4000, label:'Tarik napas...', color:'#3b82f6',
@@ -217,7 +241,28 @@
     applyPhase(phases[0]);
     setInterval(next, 4000);
 })();
+
+// ── Animated Counter (BARU) ──
+(function () {
+    const el = document.getElementById('statCount');
+    if (!el) return;
+    const target = parseInt(el.dataset.target, 10);
+    const dur    = 1800;
+    function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+    function tick(start, now) {
+        const t   = Math.min((now - start) / dur, 1);
+        el.textContent = Math.round(easeOut(t) * target).toLocaleString('id-ID');
+        if (t < 1) requestAnimationFrame((ts) => tick(start, ts));
+    }
+    new IntersectionObserver((entries, obs) => {
+        if (entries[0].isIntersecting) {
+            requestAnimationFrame((ts) => tick(ts, ts));
+            obs.disconnect();
+        }
+    }, { threshold: 0.5 }).observe(el);
+})();
 </script>
 @endpush
+{{-- ✏️ AKHIR BAGIAN 2 --}}
 
 @endsection
