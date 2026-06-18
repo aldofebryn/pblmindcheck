@@ -107,7 +107,7 @@
                 <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:14px 20px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.05);max-width:280px;">
                     <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:6px;">
                         <div style="width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;"></div>
-                        <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#22c55e;">Sebelum Mulai</span>
+                        <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#22c55e;">Latihan Napas</span>
                     </div>
                     <p style="font-size:13.5px;color:#475569;line-height:1.6;margin:0;">
                         Ikuti gerakan lingkaran ini —<br>
@@ -161,41 +161,42 @@
 </section>
 
 {{-- ── Cara kerja ── --}}
-<section class="w-full bg-white border-y border-slate-100 py-20">
+<section class="w-full bg-white border-y border-slate-100 py-14">
     <div class="px-6 lg:px-14 xl:px-24">
-        <h2 class="font-bold text-slate-900 text-center mb-14 text-3xl sm:text-4xl lg:text-5xl">
+        <h2 class="font-bold text-slate-900 text-center mb-12 text-2xl sm:text-3xl">
             Bagaimana cara kerjanya?
         </h2>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            @foreach([
-                ['1','Buat Akun','Daftar atau masuk dengan username dan password Anda.','blue'],
-                ['2','Isi DASS-21','Jawab 21 pertanyaan kondisi Anda.','indigo'],
-                ['3','Lihat Hasil','Dapatkan hasil & rekomendasi.','violet'],
-            ] as [$no,$judul,$desc,$c])
-            <div class="bg-slate-50 rounded-2xl p-8">
-                <span class="w-14 h-14 bg-{{ $c }}-100 text-{{ $c }}-600 rounded-xl flex items-center justify-center font-bold text-xl mb-5">
-                    {{ $no }}
-                </span>
-                <h3 class="font-bold text-slate-900 text-xl mb-2">{{ $judul }}</h3>
-                <p class="text-slate-500 text-base leading-relaxed">{{ $desc }}</p>
+
+        <div class="relative max-w-5xl mx-auto">
+            {{-- Garis penghubung --}}
+            <div class="hidden sm:block absolute top-5 left-[16.5%] right-[16.5%] h-0.5 bg-gradient-to-r from-blue-200 via-indigo-200 to-violet-200"></div>
+
+            <div class="grid sm:grid-cols-3 gap-8 relative">
+                @foreach([
+                    ['1','Buat Akun','Daftar atau masuk dengan username dan password Anda.','blue','#3b82f6'],
+                    ['2','Isi DASS-21','Jawab 21 pertanyaan kondisi Anda.','indigo','#6366f1'],
+                    ['3','Lihat Hasil','Dapatkan hasil & rekomendasi.','violet','#7c3aed'],
+                ] as [$no,$judul,$desc,$c,$hex])
+                <div class="flex flex-col items-center text-center">
+                    {{-- Nomor bubble --}}
+                    <div class="w-10 h-10 rounded-full bg-{{ $c }}-100 border-2 border-{{ $c }}-300 flex items-center justify-center font-bold text-{{ $c }}-600 text-sm mb-4 relative z-10 bg-white">
+                        {{ $no }}
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-base mb-1.5">{{ $judul }}</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">{{ $desc }}</p>
+                </div>
+                @endforeach
             </div>
-            @endforeach
         </div>
     </div>
 </section>
 
 {{-- ── Disclaimer ── --}}
-<section class="w-full px-6 lg:px-14 xl:px-24 py-12">
-    <div class="bg-amber-50 border border-amber-200 rounded-2xl px-8 py-6 flex gap-4">
-        <svg class="w-6 h-6 text-amber-500 mt-1 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-        </svg>
-        <p class="text-amber-800 text-base leading-relaxed">
-            <strong>Disclaimer:</strong> Ini hanya alat skrining, bukan diagnosis medis.
-            Hubungi <strong>SEJIWA 119 (ext 8)</strong> jika darurat.
-        </p>
-    </div>
+<section class="w-full px-6 lg:px-14 xl:px-24 py-6 text-center">
+    <p class="text-slate-400 text-xs leading-relaxed">
+        ⚠️ Ini hanya alat skrining, bukan diagnosis medis. &nbsp;·&nbsp;
+        Hubungi <strong class="text-slate-500">SEJIWA 119 (ext 8)</strong> jika darurat.
+    </p>
 </section>
 
 @push('scripts')
