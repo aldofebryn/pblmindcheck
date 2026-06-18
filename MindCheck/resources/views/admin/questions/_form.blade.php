@@ -2,7 +2,7 @@
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
             <h2 class="text-xl font-bold text-slate-800">
-                {{ isset($question) ? '✏️ Edit Pertanyaan' : '➕ Tambah Pertanyaan Baru' }}
+                {{ isset($question) ? 'Edit Pertanyaan' : '➕ Tambah Pertanyaan Baru' }}
             </h2>
             <p class="text-slate-500 text-sm mt-0.5">Lengkapi data sesuai instrumen DASS-21</p>
         </div>
