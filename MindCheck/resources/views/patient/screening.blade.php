@@ -75,7 +75,7 @@
                 @php
                 $opsi = [
                     [0,'Tidak pernah',  'Tidak berlaku sama sekali untuk saya','green'],
-                    [1,'Kadang-kadang', 'Berlaku untuk saya sesekali','yellow'],
+                    [1,'Jarang', 'Berlaku untuk saya sesekali','yellow'],
                     [2,'Sering',        'Berlaku dalam kadar yang cukup besar','orange'],
                     [3,'Sangat sering', 'Sangat berlaku, hampir sepanjang waktu','rose'],
                 ];
