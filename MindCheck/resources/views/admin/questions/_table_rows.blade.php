@@ -4,8 +4,8 @@
         {{ str_pad($q->nomor, 2, '0', STR_PAD_LEFT) }}
     </td>
     
-    <td class="px-6 py-5 text-slate-800 align-top font-serif font-normal">
-        {{ $q->teks_id }}
+    <td class="px-6 py-5 text-slate-800 align-top font-serif !font-normal">
+    {{ $q->teks_id }}
     </td>
     <td class="px-6 py-5 text-slate-500 align-top font-serif font-normal italic">
         {{ $q->teks_en }}
