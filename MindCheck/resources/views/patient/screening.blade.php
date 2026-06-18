@@ -48,7 +48,7 @@
             <div id="question-card" class="bg-white rounded-2xl shadow-md shadow-slate-200/50 border border-slate-100 p-5 mb-4 flex items-center justify-between gap-4">
                 <div>
                     <p id="question-en" class="text-slate-400 italic font-semibold text-xs mb-2"></p>
-                    <h2 id="question-text" class="text-xl md:text-2xl font-normal text-slate-950 leading-snug font-serif"></h2>
+                    <h2 id="question-text" class="text-xl md:text-2xl font-black text-slate-950 leading-snug"></h2>
                 </div>
                 <div class="hidden lg:flex w-40 justify-center">
                     <svg viewBox="0 0 360 160" class="w-64 h-28">
