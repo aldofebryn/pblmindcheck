@@ -140,6 +140,46 @@
 
     @else
 
+    @if($activeDraft && $activeDraftMeta)
+    <div class="bg-white border border-slate-100 rounded-3xl p-8 sm:p-10 shadow-sm">
+        <div class="grid gap-6 lg:grid-cols-[1.25fr_1fr]">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-widest text-blue-500 mb-2">Skrining belum selesai</p>
+                <h3 class="text-2xl font-bold text-slate-900 mb-3">Lanjutkan sesi skrining Anda</h3>
+                <p class="text-sm text-slate-500 leading-6">Progress jawaban Anda masih tersimpan sementara. Timer berjalan saat Anda tidak berada di halaman skrining.</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 sm:justify-end sm:items-center">
+                <a href="{{ route('screening') }}" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-2xl text-sm transition-colors shadow-sm">
+                    Lanjutkan Skrining
+                </a>
+            </div>
+        </div>
+
+        <div class="grid gap-4 mt-6 sm:grid-cols-2">
+            <div class="rounded-3xl border border-slate-100 bg-slate-50 p-5">
+                <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Sisa Waktu</p>
+                <p id="draft-countdown" class="mt-3 text-3xl font-bold text-slate-900">--:--</p>
+                <p id="draft-countdown-status" class="mt-2 text-sm text-slate-500">Sesi berakhir pukul {{ $activeDraftMeta['expired_at_text'] }}</p>
+            </div>
+
+            <div class="rounded-3xl border border-slate-100 bg-slate-50 p-5">
+                <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Progress Terakhir</p>
+                <p class="mt-3 text-base font-semibold text-slate-900">
+                    @if($activeDraftMeta['last_question_number'])
+                        Terakhir tersimpan sampai soal nomor {{ $activeDraftMeta['last_question_number'] }}
+                    @else
+                        Belum ada jawaban tersimpan
+                    @endif
+                </p>
+                <p class="mt-2 text-sm text-slate-500">
+                    {{ $activeDraftMeta['answered_count'] }} dari 21 pertanyaan terisi. Aktivitas terakhir: {{ $activeDraftMeta['last_activity_text'] }}
+                </p>
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- ── Chart ──────────────────────────────────────────────────── --}}
     <div class="bg-white border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm">
         @if($screenings->count() === 1)
